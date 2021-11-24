@@ -54,7 +54,7 @@ class TimeTable(models.Model):
         "Время занятия", default=django.utils.timezone.now)
 
     def __str__(self):
-        return self.course
+        return str(self.course)
 
     class Meta:
         verbose_name = 'Расписание'

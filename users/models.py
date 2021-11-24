@@ -11,7 +11,7 @@ class Teacher(models.Model):
     language = models.ManyToManyField(Language, verbose_name="Язык")
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
     class Meta:
         app_label = 'auth'
@@ -26,7 +26,7 @@ class Student(models.Model):
         User, verbose_name="Пользователь", on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user
+        return str(self.user)
 
     class Meta:
         app_label = 'auth'

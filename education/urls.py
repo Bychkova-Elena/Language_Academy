@@ -3,6 +3,8 @@ from django.views.generic import TemplateView
 from . import views
 
 urlpatterns = [
-    path('timetable/<int:pk>/',
+    path('<int:pk>/timetable/',
          views.TimeTableView.as_view({'get': 'list'})),
+    path('<int:pk>/homework/',
+         views.HomeworkView.as_view({'get': 'list'})),
 ]

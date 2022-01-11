@@ -1,9 +1,18 @@
 import React from "react";
 import { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
+import LogIn from "@components/LogIn";
+import MainPage from "@pages/MainPage";
+
 
   
 function App() {
-  const [access, setAccess] = useState(localStorage.getItem('accessToken'))
+  //const [access, setAccess] = useState(localStorage.getItem('accessToken'))
 //   const [refresh, setRefresh] = useState(localStorage.getItem('refreshToken'))
 //   const [refreshRequired, setRefreshRequired] = useState(false)
 //   const [loading, setLoading] = useState(null)
@@ -151,6 +160,18 @@ function App() {
 //       }
 //     </div>
   // );
+
+    return (
+      <div className="App">
+        <Router>
+          <Routes>
+            <Route path="/" element={<MainPage/>}/>
+            <Route path="/login" element={<LogIn/>}
+            />
+          </Routes>
+        </Router>
+      </div>
+  );
 }
 
 export default App;

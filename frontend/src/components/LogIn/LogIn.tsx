@@ -1,10 +1,9 @@
 import React, { FormEvent } from "react";
-
-import Input from "@components/Input";
 import Button from "@components/Button";
+import Input from "@components/Input";
 
 export type LogInProps = {
-  onSubmit: (e: FormEvent) => void;
+  onSubmit?: (e: FormEvent) => void;
 };
 
 const LogIn: React.FC<LogInProps> = ({  onSubmit= () => {}}) => (

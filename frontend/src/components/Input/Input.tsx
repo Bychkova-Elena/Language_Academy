@@ -5,12 +5,13 @@ import { ChangeEventHandler } from "react";
 export type InputProps = {
   onChange?: ChangeEventHandler<HTMLInputElement>;
   value: string;
-  placeholder: string;
+  placeholder?: string;
+  type: string;
 };
 
-const Input: React.FC<InputProps> = ({ onChange, placeholder, value }) => (
+const Input: React.FC<InputProps> = ({ onChange, placeholder, value, type }) => (
   <input
-    type="text"
+    type={type }
     placeholder={placeholder}
     onChange={onChange}
     value={value}

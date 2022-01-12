@@ -18,6 +18,8 @@ module.exports = {
     alias: {
       "@components": path.resolve(srcPath, "components"),
       "@pages": path.resolve(srcPath, "pages"),
+      "@store": path.resolve(srcPath, "store"),
+      "@shared": path.resolve(srcPath, "shared/store"),
     },
   },
 };

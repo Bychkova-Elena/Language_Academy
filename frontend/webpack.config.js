@@ -18,8 +18,9 @@ module.exports = {
     alias: {
       "@components": path.resolve(srcPath, "components"),
       "@pages": path.resolve(srcPath, "pages"),
-      "@store": path.resolve(srcPath, "store"),
-      "@shared": path.resolve(srcPath, "shared/store"),
+      "@actions": path.resolve(srcPath, "actions"),
+      "@reducer": path.resolve(srcPath, "reducer"),
+      "@hocs": path.resolve(srcPath, "hocs"),
     },
   },
 };

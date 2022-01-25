@@ -28,10 +28,16 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
+    "axios": "^0.25.0",
+    "js-cookie": "^3.0.1",
     "qs": "^6.10.3",
     "react-app-rewire-alias": "^1.1.7",
     "react-app-rewired": "^2.1.11",
+    "react-redux": "^7.2.6",
     "react-router-dom": "^6.2.1",
+    "redux": "^4.1.2",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.1",
     "universal-cookie": "^4.0.4"
   }
 }

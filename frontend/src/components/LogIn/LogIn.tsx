@@ -1,11 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Input from "@components/Input";
-import UserStore from "@store/UserStore";
 import Cookies from "universal-cookie";
 
 const cookies = new Cookies();
-
-const userStore = new UserStore();
 
 const LogIn: React.FC = () => {
 

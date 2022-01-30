@@ -40,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    # 'rest_framework.authtoken',
-    # 'rest_framework_simplejwt.token_blacklist',
     'knox',
     'core',
     'languages',
@@ -50,9 +48,6 @@ INSTALLED_APPS = [
     'frontend',
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
-# }
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -134,10 +129,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static/frontend'),
-# )
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 

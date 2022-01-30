@@ -34,9 +34,11 @@ class CourseAdmin(admin.ModelAdmin):
   
 @admin.register(Homework)
 class HomeworkAdmin(admin.ModelAdmin):
-  list_display = ("name", "course", "url", "created", "deadline", "durable")
-  list_filter = ("durable", )
+  list_display = ("name", "course", "url", "created", "deadline", "durable", "draft")
+  list_filter = ("durable", "draft")
+  list_editable = ("draft",)
   search_fields = ("name", "course__name")
+  actions = ["publish", "unpublish"]
   save_as = True
   list_editable = ("durable",)
   fieldsets = (
@@ -50,6 +52,29 @@ class HomeworkAdmin(admin.ModelAdmin):
             "fields": (("created", "deadline"),)
         })
     )
+  def unpublish(self, request, queryset):
+        #Снять с публикации#
+        row_update = queryset.update(draft=True)
+        if row_update == 1:
+            message_bit = "1 record was changed"
+        else:
+            message_bit = f"{row_update} records were changed"
+        self.message_user(request, f"{message_bit}")
+
+  def publish(self, request, queryset):
+        #Опубликовать#
+        row_update = queryset.update(draft=False)
+        if row_update == 1:
+            message_bit = "1 record was changed"
+        else:
+            message_bit = f"{row_update} records were changed"
+        self.message_user(request, f"{message_bit}")
+
+  publish.short_description = "Publish"
+  publish.allowed_permissions = ('change', )
+  
+  unpublish.short_description = "Unpublish"
+  unpublish.allowed_permissions = ('change',)
   
 @admin.register(TimeTable)
 class TimeTableAdmin(admin.ModelAdmin):

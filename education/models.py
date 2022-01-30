@@ -37,6 +37,7 @@ class Homework(models.Model):
     durable = models.BooleanField("Длительное", default=False)
     course = models.ForeignKey(
         Course, verbose_name="Курс", on_delete=models.SET_NULL, null=True)
+    draft = models.BooleanField("Черновик", default=False)
 
     def __str__(self):
         return self.name

@@ -56,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, logout }) => {
     );
 };
 
-const mapStateToProps = (state: { auth: { isAuthenticated: any; }; }) => ({
+const mapStateToProps = (state: { auth: { isAuthenticated: boolean; }; }) => ({
     isAuthenticated: state.auth.isAuthenticated
 });
 

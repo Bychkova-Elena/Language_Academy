@@ -19,7 +19,7 @@ module.exports = {
       "@components": path.resolve(srcPath, "components"),
       "@pages": path.resolve(srcPath, "pages"),
       "@actions": path.resolve(srcPath, "actions"),
-      "@reducer": path.resolve(srcPath, "reducer"),
+      "@reducers": path.resolve(srcPath, "reducers"),
       "@hocs": path.resolve(srcPath, "hocs"),
     },
   },

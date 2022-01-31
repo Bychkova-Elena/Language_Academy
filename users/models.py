@@ -11,15 +11,15 @@ class UserProfile(models.Model):
         (TEACHER, 'TEACHER')
     ]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
     role = models.CharField("Роль",
                               max_length=20,
                               choices=ROLE,
                               default=STUDENT)
-    first_name = models.CharField(max_length=255, default='')
-    last_name = models.CharField(max_length=255, default='')
-    phone = models.CharField(max_length=20, default='')
-    city = models.CharField(max_length=20, default='')
+    first_name = models.CharField(verbose_name="Имя", max_length=255, default='')
+    last_name = models.CharField(verbose_name="Фамилия", max_length=255, default='')
+    phone = models.CharField(verbose_name="Телефон", max_length=20, default='')
+    city = models.CharField(verbose_name="Город", max_length=20, default='')
 
     def __str__(self):
         return self.first_name
@@ -28,6 +28,8 @@ class UserProfile(models.Model):
         app_label = 'auth'
         verbose_name = 'Профиль пользователя'
         verbose_name_plural = 'Профиль пользователей'
+        ordering = ('user',)
+
     
 class Teacher(models.Model):
     '''Учителя'''
@@ -43,6 +45,7 @@ class Teacher(models.Model):
         app_label = 'auth'
         verbose_name = 'Учитель'
         verbose_name_plural = 'Учителя'
+        ordering = ('user', 'language__name')
 
 
 class Student(models.Model):
@@ -58,3 +61,4 @@ class Student(models.Model):
         app_label = 'auth'
         verbose_name = 'Ученик'
         verbose_name_plural = 'Ученики'
+        ordering = ('user',)

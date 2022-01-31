@@ -18,6 +18,7 @@ class CourseAdmin(admin.ModelAdmin):
   list_filter = ("language", "level", "teacher__user")
   search_fields = ("name", "teacher__user__username")
   inlines = [TimeTableInline, HomeworkInline]
+  raw_id_fields = ["teacher", "student"]
   save_on_top = True
   save_as = True
   fieldsets = (
@@ -39,6 +40,7 @@ class HomeworkAdmin(admin.ModelAdmin):
   list_editable = ("draft",)
   search_fields = ("name", "course__name")
   actions = ["publish", "unpublish"]
+  raw_id_fields = ["course", ]
   save_as = True
   list_editable = ("durable",)
   fieldsets = (
@@ -70,15 +72,16 @@ class HomeworkAdmin(admin.ModelAdmin):
             message_bit = f"{row_update} records were changed"
         self.message_user(request, f"{message_bit}")
 
-  publish.short_description = "Publish"
+  publish.short_description = "Опубликовать"
   publish.allowed_permissions = ('change', )
   
-  unpublish.short_description = "Unpublish"
+  unpublish.short_description = "Снять с публикации"
   unpublish.allowed_permissions = ('change',)
   
 @admin.register(TimeTable)
 class TimeTableAdmin(admin.ModelAdmin):
   list_display = ("course", "time")
   search_fields = ("course__name", )
+  raw_id_fields = ["course", ]
   
 

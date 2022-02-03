@@ -33,10 +33,9 @@ class UserProfile(models.Model):
     
 class Teacher(models.Model):
     '''Учителя'''
-
-    user = models.OneToOneField(
-        UserProfile, verbose_name="Пользователь", on_delete=models.CASCADE)
-    language = models.ManyToManyField(Language, verbose_name="Язык")
+    
+    user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
+    language = models.ManyToManyField(Language, verbose_name="Язык", blank=True)
 
     def __str__(self):
         return str(self.user)
@@ -51,8 +50,7 @@ class Teacher(models.Model):
 class Student(models.Model):
     '''Ученики'''
 
-    user = models.OneToOneField(
-        UserProfile, verbose_name="Пользователь", on_delete=models.CASCADE)
+    user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.user)

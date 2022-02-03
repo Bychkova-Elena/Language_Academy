@@ -4,6 +4,7 @@ from rest_framework import permissions
 from django.contrib import auth
 from rest_framework.response import Response
 from .serializers import UserSerializer
+from users.models import UserProfile, Teacher, Student
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 
@@ -32,6 +33,7 @@ class SignupView(APIView):
         username = data['username']
         password = data['password']
         re_password  = data['re_password']
+        role = data['role']
 
         try:
             if password == re_password:
@@ -43,9 +45,15 @@ class SignupView(APIView):
                     else:
                         user = User.objects.create_user(username=username, password=password)
 
-                        # user = User.objects.get(id=user.id)
+                        user = User.objects.get(id=user.id)
 
-                        # user_profile = UserProfile.objects.create(user=user, first_name='', last_name='', phone='', city='')
+                        user_profile = UserProfile.objects.create(user=user, role=role, first_name='', last_name='', phone='', city='')
+                        
+                        if (role == "STUDENT"):
+                            student = Student.objects.create(user=user)
+                            
+                        else:
+                            teacher = Teacher.objects.create(user=user)
 
                         return Response({ 'success': 'User created successfully' })
             else:

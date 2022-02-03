@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 #     return render(request, 'build/index.html')
 
 urlpatterns = [
-    path('admin', admin.site.urls),
+    path('admin/', admin.site.urls),
     path('education/', include("education.urls")),
     path('users/', include("users.urls")),
     path('core/', include("core.urls")),

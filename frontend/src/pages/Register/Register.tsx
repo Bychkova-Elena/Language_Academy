@@ -13,20 +13,22 @@ const Register: React.FC<RegisterProps> = ({ register, isAuthenticated }) => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
-        re_password: ''
+        re_password: '',
+        role:'STUDENT'
     });
     const [accountCreated, setAccountCreated] = useState(false);
 
-    const { username, password, re_password } = formData;
+    const { username, password, re_password, role } = formData;
 
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (password === re_password) {
-            register(username, password, re_password);
+            register(username, password, re_password, role);
             setAccountCreated(true);
+            console.log(username, password, re_password, role)
         }
     };
 
@@ -78,6 +80,13 @@ const Register: React.FC<RegisterProps> = ({ register, isAuthenticated }) => {
                         minLength='6'
                         required
                     />
+                </div>
+                <div className='form-group'>
+                    <label className='form-label mt-3'>Role: </label>
+                    <select  className='form-control' value={role} onChange={e =>  setFormData({ ...formData, role: e.target.value })}>
+                        <option value="STUDENT">Student</option>
+                        <option value="TEACHER">Teacher</option>
+                    </select>
                 </div>
                 <button className='btn btn-primary mt-3' type='submit'>Register</button>
             </form>

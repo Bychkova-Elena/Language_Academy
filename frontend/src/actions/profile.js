@@ -16,7 +16,7 @@ export const load_user = () => async dispatch => {
     };
 
     try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/users/user`, config);
+        const res = await axios.get(`http://localhost:8000/users/user`, config);
 
         if (res.data.error) {
             dispatch({
@@ -53,7 +53,7 @@ export const update_profile = (first_name, last_name, phone, city) => async disp
     });
 
     try {
-        const res = await axios.put(`${process.env.REACT_APP_API_URL}/users/update`, body, config);
+        const res = await axios.put(`http://localhost:8000/users/update`, body, config);
 
         if (res.data.profile && res.data.username) {
             dispatch({

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +28,15 @@ SECRET_KEY = 'django-insecure-dkorkusp2c=o4t%bvgpwtlt6os*s2(*#m94l^lxgb8*$a-ua9$
 DEBUG = True
 
 ALLOWED_HOSTS = []
+# CORS_ALLOW_HEADERS = list(default_headers) + [
+#     'X-CSRFToken',
+# ]
+
+# CSRF_COOKIE_NAME = "csrftoken"
+# CSRF_COOKIE_HTTPONLY = False
+
+# CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
+# CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
@@ -152,11 +162,12 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CSRF_COOKIE_SAMESITE = 'Strict'
+#CSRF_COOKIE_SAMESITE = 'Strict'
 # SESSION_COOKIE_SAMESITE = 'Strict'
-# CSRF_COOKIE_HTTPONLY = False  # False since we will grab it via universal-cookies
+#CSRF_COOKIE_HTTPONLY = True 
 # SESSION_COOKIE_HTTPONLY = True
 
 # PROD ONLY
-# CSRF_COOKIE_SECURE = True
+#CSRF_COOKIE_SECURE = not DEBUG
+#DCS_SESSION_COOKIE_SAMESITE = 'Lax'
 # SESSION_COOKIE_SECURE = True

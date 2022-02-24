@@ -8,7 +8,7 @@ from users.models import UserProfile, Teacher, Student
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 
-@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         user = self.request.user
@@ -23,7 +23,8 @@ class CheckAuthenticatedView(APIView):
         except:
             return Response({ 'error': 'Something went wrong when checking authentication status' })
 
-@method_decorator(csrf_protect, name='dispatch')
+
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -52,7 +53,7 @@ class SignupView(APIView):
                         if (role == "STUDENT"):
                             student = Student.objects.create(user=user)
                             
-                        else:
+                        if (role == "TEACHER"):
                             teacher = Teacher.objects.create(user=user)
 
                         return Response({ 'success': 'User created successfully' })
@@ -61,7 +62,7 @@ class SignupView(APIView):
         except:
                 return Response({ 'error': 'Something went wrong when registering account' })
 
-@method_decorator(csrf_protect, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
 

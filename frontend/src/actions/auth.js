@@ -23,7 +23,7 @@ export const checkAuthenticated = () => async dispatch => {
     };
 
     try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/core/authenticated`, config);
+        const res = await axios.get(`http://localhost:8000/core/authenticated`, config);
 
         if (res.data.error || res.data.isAuthenticated === 'error') {
             dispatch({
@@ -63,7 +63,7 @@ export const login = (username, password) => async dispatch => {
     const body = JSON.stringify({ username, password });
 
     try {
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/core/login`, body, config);
+        const res = await axios.post(`http://localhost:8000/core/login`, body, config);
 
         if (res.data.success) {
             dispatch({
@@ -83,7 +83,7 @@ export const login = (username, password) => async dispatch => {
     }
 };
 
-export const register = (username, password, re_password) => async dispatch => {
+export const register = (username, password, re_password, role) => async dispatch => {
     const config = {
         headers: {
             'Accept': 'application/json',
@@ -92,10 +92,10 @@ export const register = (username, password, re_password) => async dispatch => {
         }
     };
 
-    const body = JSON.stringify({ username, password, re_password });
+    const body = JSON.stringify({ username, password, re_password, role });
 
     try {
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/core/register`, body, config);
+        const res = await axios.post(`http://localhost:8000/core/register`, body, config);
 
         if (res.data.error) {
             dispatch({
@@ -127,7 +127,7 @@ export const logout = () => async dispatch => {
     });
 
     try {
-        const res = await axios.post(`${process.env.REACT_APP_API_URL}/core/logout`, body, config);
+        const res = await axios.post(`http://localhost:8000/core/logout`, body, config);
 
         if (res.data.success) {
             dispatch({
@@ -159,7 +159,7 @@ export const delete_account = () => async dispatch => {
     });
 
     try {
-        const res = await axios.delete(`${process.env.REACT_APP_API_URL}/core/delete`, config, body);
+        const res = await axios.delete(`http://localhost:8000/core/delete`, config, body);
 
         if (res.data.success) {
             dispatch({

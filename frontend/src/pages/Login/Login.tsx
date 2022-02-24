@@ -7,7 +7,7 @@ import CSRFToken from '@components/CSRFToken';
 export type LogInProps = {
   login: (...arg0: string[]) => void;
   isAuthenticated: boolean;
-};
+}; 
 
 const LogIn: React.FC<LogInProps> = ({ login, isAuthenticated }) => {
     const [formData, setFormData] = useState({

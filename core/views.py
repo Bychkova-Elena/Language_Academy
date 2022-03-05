@@ -8,7 +8,6 @@ from users.models import UserProfile, Teacher, Student
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         user = self.request.user

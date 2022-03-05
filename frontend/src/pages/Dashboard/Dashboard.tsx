@@ -4,53 +4,53 @@ import { update_profile } from '@actions/profile';
 import { delete_account } from '@actions/auth';
 
 export type DashboardProps = {
-    // delete_account: () => void,
-    // update_profile: (first_name: string, last_name: string, phone: string, city: string) => void,
-    // first_name_global: string,
-    // last_name_global: string,
-    // phone_global: string,
-    // city_global:string
+    delete_account: () => void,
+    update_profile: (first_name: string, last_name: string, phone: string, city: string) => void,
+    first_name_global: string,
+    last_name_global: string,
+    phone_global: string,
+    city_global:string
 
 };
 
 const Dashboard: React.FC<DashboardProps> = ({
-    // delete_account,
-    // update_profile,
-    // first_name_global,
-    // last_name_global,
-    // phone_global,
-    // city_global
+    delete_account,
+    update_profile,
+    first_name_global,
+    last_name_global,
+    phone_global,
+    city_global
 }) => {
-    // const [formData, setFormData] = useState({
-    //     first_name: '',
-    //     last_name: '',
-    //     phone: '',
-    //     city: ''
-    // });
+    const [formData, setFormData] = useState({
+        first_name: '',
+        last_name: '',
+        phone: '',
+        city: ''
+    });
 
-    // const { first_name, last_name, phone, city } = formData;
+    const { first_name, last_name, phone, city } = formData;
 
-    // useEffect(() => {
-    //     setFormData({
-    //         first_name: first_name_global,
-    //         last_name: last_name_global,
-    //         phone: phone_global,
-    //         city: city_global
-    //     });
-    // }, [first_name_global]);
+    useEffect(() => {
+        setFormData({
+            first_name: first_name_global,
+            last_name: last_name_global,
+            phone: phone_global,
+            city: city_global
+        });
+    }, [first_name_global]);
 
-    // const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    // const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
+    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
-    //     update_profile(first_name, last_name, phone, city);
-    // };
+        update_profile(first_name, last_name, phone, city);
+    };
 
     return (
         <div className='container'>
             <h1 className='mt-3'>Welcome to your User Dashboard</h1>
-            {/* <p className='mt-3 mb-3'>Update your user profile below:</p>
+         <p className='mt-3 mb-3'>Update your user profile below:</p>
             <form onSubmit={e => onSubmit(e)}>
                 <div className='form-group'>
                     <label className='form-label' htmlFor='first_name'>First Name</label>
@@ -107,7 +107,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 onClick={delete_account}
             >
                 Delete Account
-            </a> */}
+            </a>
         </div>
     )
 };

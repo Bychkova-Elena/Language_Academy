@@ -2,6 +2,13 @@ from rest_framework import fields, serializers
 
 from .models import Course, Homework, TimeTable
 
+class CourseSerializer(serializers.ModelSerializer):
+    # названия групп пользователя #
+
+    class Meta:
+        model = Course
+        fields = ('name', )
+
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #
 

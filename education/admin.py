@@ -35,20 +35,20 @@ class CourseAdmin(admin.ModelAdmin):
   
 @admin.register(Homework)
 class HomeworkAdmin(admin.ModelAdmin):
-  list_display = ("name", "course", "url", "created", "deadline", "durable", "draft")
-  list_filter = ("durable", "draft")
+  list_display = ("name", "course", "link", "created", "deadline", "onEveryLesson", "draft")
+  list_filter = ("onEveryLesson", "draft")
   list_editable = ("draft",)
   search_fields = ("name", "course__name")
   actions = ["publish", "unpublish"]
   raw_id_fields = ["course", ]
   save_as = True
-  list_editable = ("durable",)
+  list_editable = ("onEveryLesson",)
   fieldsets = (
         (None, {
-            "fields": (("name", "url"),)
+            "fields": (("name", "link"),)
         }),
         (None, {
-            "fields": ("descrition", "durable", "course")
+            "fields": ("descrition", "onEveryLesson", "course")
         }),
         (None, {
             "fields": (("created", "deadline"),)
@@ -80,7 +80,7 @@ class HomeworkAdmin(admin.ModelAdmin):
   
 @admin.register(TimeTable)
 class TimeTableAdmin(admin.ModelAdmin):
-  list_display = ("course", "time")
+  list_display = ("course", "starts", "end", "period")
   search_fields = ("course__name", )
   raw_id_fields = ["course", ]
   

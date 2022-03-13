@@ -16,8 +16,8 @@ class UserProfile(models.Model):
                               max_length=20,
                               choices=ROLE,
                               default=STUDENT)
-    first_name = models.CharField(verbose_name="Имя", max_length=255, default='')
-    last_name = models.CharField(verbose_name="Фамилия", max_length=255, default='')
+    firstName = models.CharField(verbose_name="Имя", max_length=255, default='')
+    lastName = models.CharField(verbose_name="Фамилия", max_length=255, default='')
     phone = models.CharField(verbose_name="Телефон", max_length=20, default='')
     city = models.CharField(verbose_name="Город", max_length=20, default='')
 

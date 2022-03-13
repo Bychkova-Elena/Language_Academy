@@ -16,9 +16,9 @@ class StudentAdmin(admin.ModelAdmin):
   
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-  list_display = ("user", "role", "first_name", "last_name")
+  list_display = ("user", "role", "firstName", "lastName")
   list_filter = ("role", )
-  search_fields = ("first_name", "last_name")
+  search_fields = ("firstName", "lastName")
   raw_id_fields = ["user", ]
   
   actions = ["changeOnStudent","changeOnTeacher"]

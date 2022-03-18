@@ -1,5 +1,7 @@
 from django.contrib.auth import authenticate
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework import serializers
+from users.models import UserProfile
 from django.contrib.auth.models import User
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -20,14 +22,32 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
-class LoginUserSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+    tokens = serializers.CharField(read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = ['user_username', 'user_password', 'tokens']
 
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Unable to log in with provided credentials.")
+    def validate(self, attrs):
+        username = attrs.get('username', '')
+        password = attrs.get('password', '')
+        
+        user = authenticate(username=username, password=password)
+        
+        if not user:
+            raise AuthenticationFailed('Invalid credentials, try again')
+        
+        if not user.is_active:
+            raise AuthenticationFailed('Account disabled, contact admin')
+         
+        
+        return {
+            'username': user.username,
+            'tokens':user.tokens
+        }
+        
 
         

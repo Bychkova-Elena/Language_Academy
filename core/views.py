@@ -3,10 +3,13 @@ from rest_framework.views import APIView
 from rest_framework import permissions
 from django.contrib import auth
 from rest_framework.response import Response
-from .serializers import UserSerializer
+from .serializers import UserSerializer, LoginSerializer
 from users.models import UserProfile, Teacher, Student
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+
 
 class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
@@ -16,14 +19,13 @@ class CheckAuthenticatedView(APIView):
             isAuthenticated = user.is_authenticated
 
             if isAuthenticated:
-                return Response({ 'isAuthenticated': 'success' })
+                return Response({'isAuthenticated': 'success'})
             else:
-                return Response({ 'isAuthenticated': 'error' })
+                return Response({'isAuthenticated': 'error'})
         except:
-            return Response({ 'error': 'Something went wrong when checking authentication status' })
+            return Response({'error': 'Something went wrong when checking authentication status'})
 
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -32,70 +34,78 @@ class SignupView(APIView):
 
         username = data['username']
         password = data['password']
-        re_password  = data['re_password']
+        re_password = data['re_password']
         role = data['role']
 
         try:
             if password == re_password:
                 if User.objects.filter(username=username).exists():
-                    return Response({ 'error': 'Username already exists' })
+                    return Response({'error': 'Username already exists'})
                 else:
                     if len(password) < 6:
-                        return Response({ 'error': 'Password must be at least 6 characters' })
+                        return Response({'error': 'Password must be at least 6 characters'})
                     else:
-                        user = User.objects.create_user(username=username, password=password)
+                        user = User.objects.create_user(
+                            username=username, password=password)
 
                         user = User.objects.get(id=user.id)
 
-                        user_profile = UserProfile.objects.create(user=user, role=role, first_name='', last_name='', phone='', city='')
-                        
+                        user_profile = UserProfile.objects.create(
+                            user=user, role=role, first_name='', last_name='', phone='', city='')
+
                         if (role == "STUDENT"):
                             student = Student.objects.create(user=user)
-                            
+
                         if (role == "TEACHER"):
                             teacher = Teacher.objects.create(user=user)
 
-                        return Response({ 'success': 'User created successfully' })
+                        return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
             else:
-                return Response({ 'error': 'Passwords do not match' })
+                return Response({'error': 'Passwords do not match'})
         except:
-                return Response({ 'error': 'Something went wrong when registering account' })
+            return Response({'error': 'Something went wrong when registering account'})
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+
 class LoginView(APIView):
-    permission_classes = (permissions.AllowAny, )
+    serializer_class = LoginSerializer
 
-    def post(self, request, format=None):
-        data = self.request.data
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
 
-        username = data['username']
-        password = data['password']
+        serializer.is_valid(raise_exception=True)
 
-        try:
-            user = auth.authenticate(username=username, password=password)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-            if user is not None:
-                auth.login(request, user)
-                return Response({ 'success': 'User authenticated' })
-            else:
-                return Response({ 'error': 'Error Authenticating' })
-        except:
-            return Response({ 'error': 'Something went wrong when logging in' })
+# class LogoutView(APIView):
+#     def post(self, request, format=None):
+#         try:
+#             auth.logout(request)
+#             return Response({ 'success': 'Loggout Out' })
+#         except:
+#             return Response({ 'error': 'Something went wrong when logging out' })
+
 
 class LogoutView(APIView):
-    def post(self, request, format=None):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
         try:
-            auth.logout(request)
-            return Response({ 'success': 'Loggout Out' })
-        except:
-            return Response({ 'error': 'Something went wrong when logging out' })
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class GetCSRFToken(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
-        return Response({ 'success': 'CSRF cookie set' })
+        return Response({'success': 'CSRF cookie set'})
+
 
 class DeleteAccountView(APIView):
     def delete(self, request, format=None):
@@ -104,15 +114,16 @@ class DeleteAccountView(APIView):
         try:
             User.objects.filter(id=user.id).delete()
 
-            return Response({ 'success': 'User deleted successfully' })
+            return Response({'success': 'User deleted successfully'})
         except:
-            return Response({ 'error': 'Something went wrong when trying to delete user' })
-        
+            return Response({'error': 'Something went wrong when trying to delete user'})
+
+
 class GetUsersView(APIView):
     permission_classes = (permissions.AllowAny, )
-    
+
     def get(self, request, format=None):
         users = User.objects.all()
-        
+
         users = UserSerializer(users, many=True, format=format)
-        return Response({ 'users': users.data })
+        return Response({'users': users.data})

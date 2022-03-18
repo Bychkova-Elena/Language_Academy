@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from languages.models import Language
 
+from rest_framework_simplejwt.tokens import RefreshToken 
+
 class UserProfile(models.Model):
     
     STUDENT = 'STUDENT'
@@ -22,7 +24,14 @@ class UserProfile(models.Model):
     city = models.CharField(verbose_name="Город", max_length=20, default='')
 
     def __str__(self):
-        return self.first_name
+        return self.firstName
+    
+    def tokens(self):
+        refresh=RefreshToken.for_user(self)
+        return{
+            'refresh':str(refresh),
+            'access': str(refresh.access_token)
+        }
         
     class Meta:
         app_label = 'auth'

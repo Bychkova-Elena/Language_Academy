@@ -17,10 +17,12 @@
 # 🚀Запуск проекта
 
 `python manage.py runserver` - запуск проекта.
+
 Проект будет доступен по адрессу: http://127.0.0.1:8000/
 
 # Возможные ошибки и способы их исправления.
-1. `django.db.migrations.exceptions.NodeNotFoundError: Migration education.0001_initial dependencies reference nonexistent parent node`
+1. `django.db.migrations.exceptions.NodeNotFoundError: Migration education.0001_initial dependencies reference nonexistent parent node...`
+    
     Исправление ошибки:
     - Удаление файла education/0001_initial.py;
     - Удаление бд (файла db.sqlite3);

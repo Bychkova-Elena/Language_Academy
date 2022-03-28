@@ -16,8 +16,39 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+    
+class TokenRefreshView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        response = Response()
+        
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            tokens = RefreshToken(refresh_token)
+            data = {
+            'refresh': str(tokens),
+            'access': str(tokens.access_token),
+            }
+            response.set_cookie(
+            key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+            value = data["refresh"],
+            expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+            secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                )
+            response.data = {"access_token":data["access"]}
+            return response
+
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    
 
 class LoginView(APIView):
+    permission_classes = (permissions.AllowAny, )
+    
     def post(self, request, format=None):
         data = request.data
         response = Response()        
@@ -35,8 +66,7 @@ class LoginView(APIView):
                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                     samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
                 )
-                csrf.get_token(request)
-                response.data = {"access":data["access"]}
+                response.data = {"access_token":data["access"]}
                 return response
             else:
                 return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
@@ -72,10 +102,10 @@ class SignupView(APIView):
                         user_profile = UserProfile.objects.create(
                             user=user, role=role, first_name='', last_name='', phone='', city='')
 
-                        if (role == "STUDENT"):
+                        if role == "STUDENT":
                             student = Student.objects.create(user=user)
 
-                        if (role == "TEACHER"):
+                        if role == "TEACHER":
                             teacher = Teacher.objects.create(user=user)
 
                         return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
@@ -90,11 +120,14 @@ class LogoutView(APIView):
 
     def post(self, request):
         try:
-            refresh_token = request.data["refresh"]
+            response = Response()
+            refresh_token = request.COOKIES.get('refresh_token')
             token = RefreshToken(refresh_token)
             token.blacklist()
+            
+            response.delete_cookie('refresh_token')
 
-            return Response(status=status.HTTP_200_OK)
+            return response
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 

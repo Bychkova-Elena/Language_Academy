@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import SignupView, LoginView,  LogoutView, DeleteAccountView, GetUsersView
+from .views import SignupView, LoginView,  LogoutView, DeleteAccountView, GetUsersView, TokenRefreshView
 
 from rest_framework_simplejwt.views import (
-    TokenRefreshView,
     TokenVerifyView
 )
 

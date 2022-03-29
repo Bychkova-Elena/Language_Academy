@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('education/', include("education.urls")),
     path('users/', include("users.urls")),
-    path('auth/', include("core.urls")),
+    path('api/auth/', include("core.urls")),
     path('api-auth/', include("rest_framework.urls")),
     path('djoser/', include('djoser.urls')),
     path('djoser/', include('djoser.urls.jwt')),

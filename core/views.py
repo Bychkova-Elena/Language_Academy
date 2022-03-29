@@ -38,7 +38,7 @@ class TokenRefreshView(APIView):
             httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
             samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
                 )
-            response.data = {"access_token":data["access"]}
+            response.data = {"accessToken":data["access"]}
             return response
 
         except Exception as e:
@@ -66,7 +66,7 @@ class LoginView(APIView):
                     httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                     samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
                 )
-                response.data = {"access_token":data["access"]}
+                response.data = {"accessToken":data["access"]}
                 return response
             else:
                 return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
@@ -83,11 +83,9 @@ class SignupView(APIView):
 
         username = data['username']
         password = data['password']
-        re_password = data['re_password']
         role = data['role']
 
         try:
-            if password == re_password:
                 if User.objects.filter(username=username).exists():
                     return Response({'error': 'Username already exists'})
                 else:
@@ -97,10 +95,11 @@ class SignupView(APIView):
                         user = User.objects.create_user(
                             username=username, password=password)
 
-                        user = User.objects.get(id=user.id)
-
-                        user_profile = UserProfile.objects.create(
-                            user=user, role=role, first_name='', last_name='', phone='', city='')
+                        user_profile = UserProfile.objects.get(user=user)
+                        
+                        user_profile.role = role
+                        
+                        user_profile.save()
 
                         if role == "STUDENT":
                             student = Student.objects.create(user=user)
@@ -109,8 +108,6 @@ class SignupView(APIView):
                             teacher = Teacher.objects.create(user=user)
 
                         return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
-            else:
-                return Response({'error': 'Passwords do not match'})
         except:
             return Response({'error': 'Something went wrong when registering account'})
 

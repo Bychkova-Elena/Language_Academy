@@ -1,115 +1,115 @@
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework import permissions
-from django.contrib.auth import authenticate
 from django.conf import settings
-from rest_framework.response import Response
-from .serializers import  UserSerializer
-from users.models import UserProfile, Teacher, Student
-from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.middleware import csrf
+from django.contrib.auth import authenticate
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-    
-class TokenRefreshView(APIView):
-    permission_classes = (permissions.AllowAny,)
+from rest_framework import status
+from rest_framework import permissions
+from core.validators import RequestValidator
+
+from users.validators import UserValidators
+from .serializers import  UserSerializer
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from users.models import UserProfile, Teacher, Student
+from .utils import JWTTokens
+
+class SignupView(APIView):
+    permission_classes = (permissions.AllowAny, )
 
     def post(self, request):
-        response = Response()
-        
         try:
-            refresh_token = request.COOKIES.get('refresh_token')
-            tokens = RefreshToken(refresh_token)
-            data = {
-            'refresh': str(tokens),
-            'access': str(tokens.access_token),
-            }
-            response.set_cookie(
-            key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-            value = data["refresh"],
-            expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-            secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-            httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-            samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-            response.data = {"accessToken":data["access"]}
-            return response
+            data = request.data
 
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    
+            if not RequestValidator.checkFieldsInRequest(data, ['username', 'password', 'role']):
+                return Response(data={'error': 'Недостаточно данных для регистрации'}, status=status.HTTP_400_BAD_REQUEST)
+
+            username = data['username']
+            password = data['password']
+            role = data['role']
+
+            if not UserValidators.isValidUserRole(role=role):
+                return Response(data={'error': 'Предоставленная роль не является допустимой'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if UserValidators.isUserExists(username=username):
+                return Response(data={'error': 'Пользователь уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = User.objects.create_user(username=username, password=password)
+
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.role = role
+            user_profile.save()
+
+            if role == "STUDENT":
+                Student.objects.create(user=user)
+            else:
+                Teacher.objects.create(user=user)
+
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
     
     def post(self, request, format=None):
-        data = request.data
-        response = Response()        
-        username = data.get('username', None)
-        password = data.get('password', None)
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                data = get_tokens_for_user(user)
-                response.set_cookie(
-                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                    value = data["refresh"],
-                    expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-                response.data = {"accessToken":data["access"]}
-                return response
-            else:
-                return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
-
-
-
-class SignupView(APIView):
-    permission_classes = (permissions.AllowAny, )
-
-    def post(self, request, format=None):
-        data = self.request.data
-
-        username = data['username']
-        password = data['password']
-        role = data['role']
-
         try:
-                if User.objects.filter(username=username).exists():
-                    return Response({'error': 'Username already exists'})
+            response = Response()
+
+            data = request.data
+
+            if not RequestValidator.checkFieldsInRequest(data, ['username', 'password']):
+                return Response(data={'error': 'Недостаточно данных для авторизации'}, status=status.HTTP_400_BAD_REQUEST)
+
+            username = data['username']
+            password = data['password']
+
+            user = authenticate(username=username, password=password)
+
+            if user is None or not user.is_active:
+                return Response(data={ 'error': 'Пользователь не найден' }, status=status.HTTP_400_BAD_REQUEST)
+
+
+            if user is not None:
+                if user.is_active:
+                    data = JWTTokens.getTokenForUser(user)
+                    response.set_cookie(
+                        key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
+                        value = data["refreshToken"],
+                        expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+                        secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                        httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                        samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+                    )
+                    response.data = {"accessToken":data["accessToken"]}
+                    return response
                 else:
-                    if len(password) < 6:
-                        return Response({'error': 'Password must be at least 6 characters'})
-                    else:
-                        user = User.objects.create_user(
-                            username=username, password=password)
+                    return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                        user_profile = UserProfile.objects.get(user=user)
-                        
-                        user_profile.role = role
-                        
-                        user_profile.save()
 
-                        if role == "STUDENT":
-                            student = Student.objects.create(user=user)
 
-                        if role == "TEACHER":
-                            teacher = Teacher.objects.create(user=user)
+class TokenRefreshView(APIView):
+    permission_classes = (permissions.AllowAny,)
 
-                        return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
-        except:
-            return Response({'error': 'Something went wrong when registering account'})
+    def post(self, request):
+        try:
+            response = Response()
+        
+            refreshToken = request.COOKIES.get(JWTTokens.REFRESH_TOKEN_KEY)
+
+            newTokens = JWTTokens.updateTokens(refreshToken)
+            JWTTokens.setTokensToResponse(response, newTokens)
+
+            return response
+
+        except Exception as error:
+            print(error)
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class LogoutView(APIView):

@@ -21,7 +21,7 @@ class SignupView(APIView):
         try:
             data = request.data
 
-            if not RequestValidator(request).containNotEmpty(fields=['username', 'password', 'role']):
+            if not RequestValidator.containNotEmpty(data=request.data, fields=['username', 'password', 'role']):
                 return Response(data={'error': 'Недостаточно данных для регистрации'}, status=status.HTTP_400_BAD_REQUEST)
 
             username = data['username']
@@ -65,7 +65,7 @@ class LoginView(APIView):
 
             data = request.data
 
-            if not RequestValidator(request).containNotEmpty(fields=['username', 'password']):
+            if not RequestValidator.containNotEmpty(data=request.data, fields=['username', 'password']):
                 return Response(data={ 'error': 'Недостаточно данных для авторизации' }, status=status.HTTP_400_BAD_REQUEST)
 
             username = data['username']

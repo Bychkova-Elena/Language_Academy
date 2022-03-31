@@ -1,7 +1,4 @@
 class RequestValidator:
-    def __init__(self, request) -> None:
-        self.request = request
-
     def fieldsIsNotEmpty(data, fields) -> bool:
         for field in fields:
             if not data[field]:
@@ -9,12 +6,12 @@ class RequestValidator:
         
         return True
 
-    def contain(self, fields) -> bool:
+    def contain(data, fields) -> bool:
         for field in fields:
-            if not field in self.request.data:
+            if not field in data:
                 return False
         
         return True
 
-    def containNotEmpty(self, fields) -> bool:
-        return self.contain(fields) and RequestValidator.fieldsIsNotEmpty(self.request.data, fields)
+    def containNotEmpty(data, fields) -> bool:
+        return RequestValidator.contain(data=data, fields=fields) and RequestValidator.fieldsIsNotEmpty(data=data, fields=fields)

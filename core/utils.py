@@ -5,7 +5,6 @@ class JWTTokens:
     REFRESH_TOKEN_KEY = 'refreshToken'
     ACCESS_TOKEN_KEY = 'accessToken'
 
-    @staticmethod
     def getTokenForUser(user):
         refreshToken = RefreshToken.for_user(user)
 
@@ -14,8 +13,7 @@ class JWTTokens:
         tokens[JWTTokens.ACCESS_TOKEN_KEY] = str(refreshToken.access_token)
 
         return tokens
-    
-    @staticmethod
+
     def updateTokens(refreshToken):
         refreshToken = RefreshToken(refreshToken)
         
@@ -24,8 +22,7 @@ class JWTTokens:
         tokens[JWTTokens.ACCESS_TOKEN_KEY] = str(refreshToken.access_token)
 
         return tokens
-        
-    @staticmethod
+
     def setRefreshTokenToCookie(response, refreshToken):
         response.set_cookie(
             key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
@@ -36,14 +33,12 @@ class JWTTokens:
             samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
         )
 
-    @staticmethod
     def addAccessTokenToResponse(response, accessToken):
         if response.data == None:
             response.data = {}
         
         response.data[JWTTokens.ACCESS_TOKEN_KEY] = accessToken
 
-    @staticmethod
     def setTokensToResponse(response, tokens):
         JWTTokens.setRefreshTokenToCookie(response, tokens[JWTTokens.REFRESH_TOKEN_KEY])
         JWTTokens.addAccessTokenToResponse(response, tokens[JWTTokens.ACCESS_TOKEN_KEY])

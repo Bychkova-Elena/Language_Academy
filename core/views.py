@@ -69,27 +69,28 @@ class LoginView(APIView):
             if user is None or not user.is_active:
                 return Response(data={ 'error': 'Пользователь не найден' }, status=status.HTTP_400_BAD_REQUEST)
 
+            tokens = JWTTokens().getTokenForUser(user=user)
 
-            if user is not None:
-                if user.is_active:
-                    data = JWTTokens.getTokenForUser(user)
-                    response.set_cookie(
-                        key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                        value = data["refreshToken"],
-                        expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-                        secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                        httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                        samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                    )
-                    response.data = {"accessToken":data["accessToken"]}
-                    return response
-                else:
-                    return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
+            JWTTokens().setTokensToResponse(response=response, tokens=tokens)
+
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class LogoutView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        try:
+            response = Response()
+            refresh_token = request.COOKIES.get('refresh_token')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            response.delete_cookie('refresh_token')
+
+            return response
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenRefreshView(APIView):
@@ -111,22 +112,6 @@ class TokenRefreshView(APIView):
             return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-class LogoutView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def post(self, request):
-        try:
-            response = Response()
-            refresh_token = request.COOKIES.get('refresh_token')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            
-            response.delete_cookie('refresh_token')
-
-            return response
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteAccountView(APIView):

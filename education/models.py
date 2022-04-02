@@ -28,15 +28,16 @@ class Course(models.Model):
 class Homework(models.Model):
     '''Домашние задания'''
     name = models.CharField("Домашнее задание", max_length=150)
-    url = models.URLField(null=True, blank=True)
+    link = models.URLField(null=True, blank=True)
     descrition = models.TextField("Описание", null=True, blank=True)
     created = models.DateTimeField(
         "Дата создания", default=django.utils.timezone.now)
     deadline = models.DateTimeField("Дата дедлайна", default=django.utils.timezone.now(
     ) + django.utils.timezone.timedelta(1))
-    durable = models.BooleanField("Длительное", default=False)
+    onEveryLesson = models.BooleanField("Длительное", default=False)
     course = models.ForeignKey(
         Course, verbose_name="Курс", on_delete=models.SET_NULL, null=True)
+    draft = models.BooleanField("Черновик", default=False)
 
     def __str__(self):
         return self.name
@@ -50,8 +51,9 @@ class TimeTable(models.Model):
     '''Расписание'''
     course = models.ForeignKey(
         Course, verbose_name="Курс", on_delete=models.CASCADE)
-    time = models.DateTimeField(
-        "Время занятия", default=django.utils.timezone.now)
+    starts = models.CharField("Дата и время первого занятия", max_length=350)
+    end = models.CharField("Дата окончания занятия", max_length=350)
+    period = models.CharField("Промежуток между занятиями периода", max_length=350)
 
     def __str__(self):
         return str(self.course)

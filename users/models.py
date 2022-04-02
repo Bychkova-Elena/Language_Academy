@@ -5,7 +5,6 @@ from languages.models import Language
 from rest_framework_simplejwt.tokens import RefreshToken 
 
 class UserProfile(models.Model):
-    
     STUDENT = 'STUDENT'
     TEACHER = 'TEACHER'
     ROLE = [

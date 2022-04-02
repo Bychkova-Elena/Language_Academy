@@ -1,151 +1,159 @@
-from django.contrib.auth.models import User
-from rest_framework.views import APIView
-from rest_framework import permissions
 from django.contrib.auth import authenticate
-from django.conf import settings
-from rest_framework.response import Response
-from .serializers import  UserSerializer
-from users.models import UserProfile, Teacher, Student
+
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.middleware import csrf
+from rest_framework import permissions
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-    
-class TokenRefreshView(APIView):
-    permission_classes = (permissions.AllowAny,)
+from users.validators import UserValidators
+from core.validators import RequestValidator
+from users.models import UserProfile, Teacher, Student
 
-    def post(self, request):
-        response = Response()
-        
-        try:
-            refresh_token = request.COOKIES.get('refresh_token')
-            tokens = RefreshToken(refresh_token)
-            data = {
-            'refresh': str(tokens),
-            'access': str(tokens.access_token),
-            }
-            response.set_cookie(
-            key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-            value = data["refresh"],
-            expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-            secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-            httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-            samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-            response.data = {"accessToken":data["access"]}
-            return response
-
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    
-    
-
-class LoginView(APIView):
-    permission_classes = (permissions.AllowAny, )
-    
-    def post(self, request, format=None):
-        data = request.data
-        response = Response()        
-        username = data.get('username', None)
-        password = data.get('password', None)
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:
-                data = get_tokens_for_user(user)
-                response.set_cookie(
-                    key = settings.SIMPLE_JWT['AUTH_COOKIE'], 
-                    value = data["refresh"],
-                    expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-                    secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                    httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
-                )
-                response.data = {"accessToken":data["access"]}
-                return response
-            else:
-                return Response({"No active" : "This account is not active!!"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response({"Invalid" : "Invalid username or password!!"}, status=status.HTTP_404_NOT_FOUND)
-
-
+from .jwt_tokens import JWTTokens
+from .serializers import  UserSerializer
 
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny, )
 
-    def post(self, request, format=None):
-        data = self.request.data
-
-        username = data['username']
-        password = data['password']
-        role = data['role']
-
+    def post(self, request):
         try:
-                if User.objects.filter(username=username).exists():
-                    return Response({'error': 'Username already exists'})
-                else:
-                    if len(password) < 6:
-                        return Response({'error': 'Password must be at least 6 characters'})
-                    else:
-                        user = User.objects.create_user(
-                            username=username, password=password)
+            data = request.data
 
-                        user_profile = UserProfile.objects.get(user=user)
-                        
-                        user_profile.role = role
-                        
-                        user_profile.save()
+            if not RequestValidator.containNotEmpty(data=request.data, fields=['username', 'password', 'role']):
+                return Response(data={'error': 'Недостаточно данных для регистрации'}, status=status.HTTP_400_BAD_REQUEST)
 
-                        if role == "STUDENT":
-                            student = Student.objects.create(user=user)
+            username = data['username']
+            password = data['password']
+            role = data['role']
 
-                        if role == "TEACHER":
-                            teacher = Teacher.objects.create(user=user)
+            if not UserValidators.isValidUsername(username=username):
+                return Response(data={'error': 'Имя пользователя является недопустимым'}, status=status.HTTP_400_BAD_REQUEST)
 
-                        return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
-        except:
-            return Response({'error': 'Something went wrong when registering account'})
+            if not UserValidators.isValidPassword(password=password):
+                return Response(data={'error': 'Пароль является недопустимым'}, status=status.HTTP_400_BAD_REQUEST)
 
+            if not UserValidators.isValidUserRole(role=role):
+                return Response(data={'error': 'Роль пользователя является недопустимой'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if UserValidators.isUserExists(username=username):
+                return Response(data={'error': 'Пользователь уже существует'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user = User.objects.create_user(username=username, password=password)
+
+            user_profile = UserProfile.objects.get(user=user)
+            user_profile.role = role
+            user_profile.save()
+
+            if role == "STUDENT":
+                Student.objects.create(user=user)
+            else:
+                Teacher.objects.create(user=user)
+
+            return Response(status=status.HTTP_201_CREATED)
+
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class LoginView(APIView):
+    permission_classes = (permissions.AllowAny, )
+    
+    def post(self, request):
+        try:
+            response = Response(status=status.HTTP_200_OK)
+
+            data = request.data
+
+            if not RequestValidator.containNotEmpty(data=request.data, fields=['username', 'password']):
+                return Response(data={ 'error': 'Недостаточно данных для авторизации' }, status=status.HTTP_400_BAD_REQUEST)
+
+            username = data['username']
+            password = data['password']
+
+            user = authenticate(username=username, password=password)
+
+            if user is None or not user.is_active:
+                return Response(data={ 'error': 'Неверный логин или пароль' }, status=status.HTTP_400_BAD_REQUEST)
+
+            tokens = JWTTokens.getTokensByUser(user=user)
+
+            JWTTokens.addTokensToResponse(response=response, tokens=tokens)
+
+            return response
+
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         try:
-            response = Response()
-            refresh_token = request.COOKIES.get('refresh_token')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            
-            response.delete_cookie('refresh_token')
+            response = Response(status=status.HTTP_200_OK)
+
+            refreshToken = request.COOKIES.get(JWTTokens.REFRESH_TOKEN_KEY)
+
+            if refreshToken is None:
+                return Response(data={ 'error': 'Не авторизован' }, status=status.HTTP_401_UNAUTHORIZED)
+
+            JWTTokens.outdateTokens(refreshToken=refreshToken)
+            response.delete_cookie(JWTTokens.REFRESH_TOKEN_KEY)
 
             return response
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
+        except TokenError:
+            return Response(data={ 'error': 'Не авторизован' }, status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TokenRefreshView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request):
+        try:
+            response = Response(status=status.HTTP_201_CREATED)
+        
+            refreshToken = request.COOKIES.get(JWTTokens.REFRESH_TOKEN_KEY)
+
+            if refreshToken is None:
+                return Response(data={ 'error': 'Не авторизован' }, status=status.HTTP_401_UNAUTHORIZED)
+
+            newTokens = JWTTokens.getNewTokens(refreshToken)
+            JWTTokens.addTokensToResponse(response, newTokens)
+
+            return response
+
+        except TokenError:
+            return Response(data={ 'error': 'Не авторизован' }, status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteAccountView(APIView):
-    def delete(self, request, format=None):
-        user = self.request.user
-
+    def delete(self):
         try:
+            user = self.request.user
+
             User.objects.filter(id=user.id).delete()
 
-            return Response({'success': 'User deleted successfully'})
-        except:
-            return Response({'error': 'Something went wrong when trying to delete user'})
+            return Response(status=status.HTTP_200_OK)
+
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetUsersView(APIView):
     permission_classes = (permissions.AllowAny, )
 
     def get(self, request, format=None):
-        users = User.objects.all()
+        try:
+            users = User.objects.all()
 
-        users = UserSerializer(users, many=True, format=format)
-        return Response({'users': users.data})
+            users = UserSerializer(users, many=True, format=format)
+
+            return Response(data=users.data, status=status.HTTP_200_OK)
+            
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)

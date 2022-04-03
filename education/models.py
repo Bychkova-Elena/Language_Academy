@@ -32,8 +32,7 @@ class Homework(models.Model):
     descrition = models.TextField("Описание", null=True, blank=True)
     created = models.DateTimeField(
         "Дата создания", default=django.utils.timezone.now)
-    deadline = models.DateTimeField("Дата дедлайна", default=django.utils.timezone.now(
-    ) + django.utils.timezone.timedelta(1))
+    deadline = models.DateTimeField("Дата дедлайна")
     onEveryLesson = models.BooleanField("Длительное", default=False)
     course = models.ForeignKey(
         Course, verbose_name="Курс", on_delete=models.SET_NULL, null=True)

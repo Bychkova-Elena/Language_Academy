@@ -7,7 +7,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('name', )
+        fields = ('name', 'level',  'language', 'price', 'student')
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #

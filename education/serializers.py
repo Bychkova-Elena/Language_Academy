@@ -6,7 +6,7 @@ from .models import Course, Homework, TimeTable
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ('name', )
+        fields = ('name', 'level',  'language', 'price', 'student')
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     class Meta:

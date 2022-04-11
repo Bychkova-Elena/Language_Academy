@@ -61,7 +61,7 @@ class TeachersCourseView(APIView):
         try:
             
             user = self.request.user
-            teacher = Teacher.objects.filter(user=user)
+            teacher = Teacher.objects.get(user=user)
             data = {
               'name': request.data['name'],
               'language': request.data['language'],

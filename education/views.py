@@ -1,16 +1,14 @@
+from django.shortcuts import get_object_or_404
+from requests import Response
 from rest_framework import status
 from rest_framework import permissions
+
+from language_academy.users.models import Teacher
 from .permissions import TeachersOnly
 from .models import Course, Homework, TimeTable
-from .serializers import TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer
+from .serializers import TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer, AddCourseSerializer, UpdateCourseSerializer
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .models import Course, Homework, TimeTable
-from .serializers import (CourseSerializer, HomeworkByCourseSerializer,
-                          TimeTableByCourseSerializer)
-
+from rest_framework.response import response
 
 class GetCorseView(APIView):
     @staticmethod
@@ -26,7 +24,7 @@ class GetCorseView(APIView):
         except:
             return Response({ 'error': 'Something went wrong when retrieving courses' })
         
-class GetTeachersCorseView(APIView):
+class TeachersCorseView(APIView):
     permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
     
     def get(self, request, format=None):
@@ -58,7 +56,72 @@ class GetTeachersCorseView(APIView):
               return Response({ 'error': 'Not a teacher' })
         except:
           return Response({ 'error': 'Something went wrong when retrieving courses' })
+        
+    def post(self, request):
+        '''Добавление группы'''
+    
+        try:
+            
+            user = self.request.user
+            teacher = Teacher.objects.filter(user=user)
+             
+            if TeachersOnly.has_object_permission(user): 
+              
+                course = AddCourseSerializer(teacher = teacher, data=request.data)
+                if course.is_valid():
+                    course.save()
+                return Response({ 'Course': course.data})
+            else:
+              return Response({ 'error': 'Not a teacher' })
+          
+        except:
+          return Response({ 'error': 'Something went wrong when additing courses' })
 
+      
+class UpdateDeleteCorseView(APIView):
+    permission_classes=[permissions.IsAuthenticated, TeachersOnly]   
+      
+    def put(self, request, courseId=None):
+        '''Редактирование групп учителя'''
+    
+        try:
+            
+            user = self.request.user
+             
+            if TeachersOnly.has_object_permission(user):
+                
+              courses = Course.objects.all()
+              courses = get_object_or_404(courses, pk=courseId)
+              course = UpdateCourseSerializer(instance=courses, data=request.data)
+              if course.is_valid():
+                course.save()
+              return Response({ 'Course': course.data}) 
+            
+            else:
+              return Response({ 'error': 'Not a teacher' })
+        except:
+          return Response({ 'error': 'Something went wrong when updating courses' })
+        
+    def delete(self, request, courseId=None):
+        '''Удаление групп учителя'''
+    
+        try:
+            
+            user = self.request.user
+             
+            if TeachersOnly.has_object_permission(user):
+                
+              courses = Course.objects.all()
+              course = get_object_or_404(courses, pk=courseId)
+              course.delete()
+              return Response(status=200)
+            
+            
+            else:
+              return Response({ 'error': 'Not a teacher' })
+        except:
+          return Response({ 'error': 'Something went wrong when updating courses' })
+    
 class GetTimeTableView(APIView):
     @staticmethod
     def get(pk):

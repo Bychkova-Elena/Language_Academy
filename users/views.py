@@ -40,6 +40,7 @@ from .permissions import IsOwnerProfileOrReadOnly
 from .serializers import userProfileSerializer, LanguageTeachersSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 
 class UserProfileListCreateView(ListCreateAPIView):
@@ -72,7 +73,7 @@ class LanguageTeachersView(APIView):
                
             language = LanguageTeachersSerializer(language, many=True)
 
-            return Response({ 'Language': language.data})
+            return Response({ 'Language': language.data}, status=status.HTTP_200_OK)
             
-        except:
-          return Response({ 'error': 'Something went wrong when retrieving languages' })
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)

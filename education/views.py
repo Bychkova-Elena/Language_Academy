@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from users.models import Teacher
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 
 class GetCorseView(APIView):
   
@@ -48,12 +49,12 @@ class TeachersCourseView(APIView):
                
               courses = CourseSerializer(courses, many=True)
 
-              return Response({ 'Course': courses.data})
+              return Response({ 'Course': courses.data}, status=status.HTTP_200_OK)
             
             else:
-              return Response({ 'error': 'Not a teacher' })
-        except:
-          return Response({ 'error': 'Something went wrong when retrieving courses' })
+              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
         
     def post(self, request):
         '''Добавление группы'''
@@ -76,12 +77,12 @@ class TeachersCourseView(APIView):
                 course = AddCourseSerializer(data = data)
                 if course.is_valid():
                     course.save()
-                return Response({ 'Course': course.data})
+                return Response({ 'Course': course.data}, status=status.HTTP_201_CREATED)
             else:
-              return Response({ 'error': 'Not a teacher' })
+              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
           
-        except:
-          return Response({ 'error': 'Something went wrong when additing courses' })
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 
       
 class UpdateDeleteCorseView(APIView):
@@ -101,12 +102,12 @@ class UpdateDeleteCorseView(APIView):
               course = UpdateCourseSerializer(instance=courses, data=request.data)
               if course.is_valid():
                 course.save()
-              return Response({ 'Course': course.data}) 
+              return Response({ 'Course': course.data}, status=status.HTTP_200_OK) 
             
             else:
-              return Response({ 'error': 'Not a teacher' })
-        except:
-          return Response({ 'error': 'Something went wrong when updating courses' })
+              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
         
     def delete(self, request, courseId=None):
         '''Удаление групп учителя'''
@@ -120,13 +121,13 @@ class UpdateDeleteCorseView(APIView):
               courses = Course.objects.all()
               course = get_object_or_404(courses, pk=courseId)
               course.delete()
-              return Response(status=200)
+              return Response(status=status.HTTP_200_OK)
             
             
             else:
-              return Response({ 'error': 'Not a teacher' })
-        except:
-          return Response({ 'error': 'Something went wrong when updating courses' })
+              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as error:
+            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
     
 
 class GetTimeTableView(APIView):

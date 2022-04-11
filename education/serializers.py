@@ -3,11 +3,25 @@ from rest_framework import fields, serializers
 from .models import Course, Homework, TimeTable
 
 class CourseSerializer(serializers.ModelSerializer):
-    # названия групп пользователя #
+    # группы #
 
     class Meta:
         model = Course
-        fields = ('name', 'level',  'language', 'price', 'student')
+        fields = ('id', 'name', 'level',  'language', 'price', 'student')
+        
+class AddCourseSerializer(serializers.ModelSerializer):
+    # добавление групп #
+
+    class Meta:
+        model = Course
+        exclude = ("student", )
+        
+class UpdateCourseSerializer(serializers.ModelSerializer):
+    # редактирование групп #
+
+    class Meta:
+        model = Course
+        fields = ('name', 'level',  'language', 'price', 'student' )
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #

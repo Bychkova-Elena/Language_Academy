@@ -24,7 +24,7 @@ class GetCorseView(APIView):
         except:
             return Response({ 'error': 'Something went wrong when retrieving courses' })
         
-class TeachersCorseView(APIView):
+class TeachersCourseView(APIView):
     permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
     
     def get(self, request, format=None):
@@ -64,10 +64,17 @@ class TeachersCorseView(APIView):
             
             user = self.request.user
             teacher = Teacher.objects.filter(user=user)
+            data = {
+              'name': request.data['name'],
+              'language': request.data['language'],
+              'level': request.data['level'],
+              'price': request.data['price'], 
+              'teacher': teacher.id
+            }
              
-            if TeachersOnly.has_object_permission(user): 
+            if TeachersOnly.has_object_permission(user):
               
-                course = AddCourseSerializer(teacher = teacher, data=request.data)
+                course = AddCourseSerializer(data = data)
                 if course.is_valid():
                     course.save()
                 return Response({ 'Course': course.data})

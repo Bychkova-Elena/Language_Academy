@@ -157,6 +157,7 @@ class MeView(APIView):
                 Response(data={ 'error': 'Невалидный пользователь' }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response(data={
+                                    'id': user.id,
                                     'username': user.username,
                                     'role': user_profile.role,
                                     'firstName': user_profile.firstName,

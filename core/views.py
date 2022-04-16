@@ -143,6 +143,29 @@ class DeleteAccountView(APIView):
         except Exception as error:
             return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 
+class MeView(APIView):
+    def get(self,request):
+        try:
+            user = self.request.user
+
+            if not user:
+                Response(data={ 'error': 'Невалидный пользователь' }, status=status.HTTP_400_BAD_REQUEST)
+
+            user_profile = UserProfile.objects.get(user=user)
+
+            if not user_profile:
+                Response(data={ 'error': 'Невалидный пользователь' }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response(data={
+                                    'username': user.username,
+                                    'role': user_profile.role,
+                                    'firstName': user_profile.firstName,
+                                    'lastName': user_profile.lastName,
+                                    }, status=status.HTTP_200_OK)
+            
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class GetUsersView(APIView):
     permission_classes = (permissions.AllowAny, )

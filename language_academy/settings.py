@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'users',
     'education',
     'frontend',
+    'permissions',
 ]
 
 

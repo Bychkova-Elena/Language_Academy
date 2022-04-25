@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
+from permissions.models import Permission, PermissionTargetKey
 
 from users.validators import UserValidators
 from core.validators import RequestValidator
@@ -42,11 +43,9 @@ class SignupView(APIView):
             
             user = User.objects.create_user(username=username, password=password)
 
-            user_profile = UserProfile.objects.get(user=user)
-            user_profile.role = role
-            user_profile.save()
+            user_profile = UserProfile.objects.create(user=user, role=role)
 
-            if role == "STUDENT":
+            if user_profile.role == "STUDENT":
                 Student.objects.create(user=user)
             else:
                 Teacher.objects.create(user=user)
@@ -76,6 +75,13 @@ class LoginView(APIView):
             if user is None or not user.is_active:
                 return Response(data={ 'error': 'Неверный логин или пароль' }, status=status.HTTP_400_BAD_REQUEST)
 
+            print('canReadUserProfileSpecificUsers admin', Permission.canReadUserProfileSpecificUsers(user, 1))
+            print('canReadUserProfileSpecificUsers student_1', Permission.canReadUserProfileSpecificUsers(user, 2))
+            print('canReadUserProfileSpecificUsers teacher_1', Permission.canReadUserProfileSpecificUsers(user, 3))
+            print('canReadUserProfileAnyUsersSpecificCourses course1', Permission.canReadUserProfileAnyUsersSpecificCourses(user, 1))
+            print('canCreateCourse', Permission.canCreateCourse(user))
+            print('canCreateCourse', Permission.canCreateCourse(user))
+
             tokens = JWTTokens.getTokensByUser(user=user)
 
             JWTTokens.addTokensToResponse(response=response, tokens=tokens)
@@ -83,6 +89,7 @@ class LoginView(APIView):
             return response
 
         except Exception as error:
+            print(error)
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutView(APIView):

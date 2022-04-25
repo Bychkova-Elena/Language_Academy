@@ -7,14 +7,10 @@ import django.utils.timezone
 class Course(models.Model):
     '''Курсы'''
     name = models.CharField("Курс", max_length=150)
-    level = models.ForeignKey(
-        Level, verbose_name="Уровень", on_delete=models.PROTECT, null=True, blank=True)
-    price = models.PositiveIntegerField(
-        "Цена", default=0, help_text="указывать цену в рублях")
-    language = models.ForeignKey(
-        Language, verbose_name="Язык", on_delete=models.PROTECT)
-    teacher = models.ForeignKey(
-        Teacher, verbose_name="Учитель", on_delete=models.PROTECT)
+    level = models.ForeignKey(Level, verbose_name="Уровень", on_delete=models.PROTECT, null=True, blank=True)
+    price = models.PositiveIntegerField("Цена", default=0, help_text="указывать цену в рублях")
+    language = models.ForeignKey(Language, verbose_name="Язык", on_delete=models.PROTECT)
+    teacher = models.ForeignKey(Teacher, verbose_name="Учитель", on_delete=models.PROTECT)
     student = models.ManyToManyField(Student, verbose_name="Студент")
 
     def __str__(self):

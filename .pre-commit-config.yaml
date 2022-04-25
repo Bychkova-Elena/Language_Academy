@@ -1,0 +1,45 @@
+fail_fast: true
+repos:
+  - repo: local
+    hooks:
+      - id: linter_core
+        name: linter_core
+        entry: pylint --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./core/]
+
+      - id: linter_education
+        name: linter_education
+        entry: pylint --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./education/]
+
+      - id: linter_language_academy
+        name: linter_language_academy
+        entry: pylint
+        language: system
+        types: [python]
+        args: [./language_academy/]
+
+      - id: linter_languages
+        name: linter_languages
+        entry: pylint --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./languages/]
+
+      - id: linter_permissions
+        name: linter_permissions
+        entry: pylint --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./permissions/]
+
+      - id: linter_users
+        name: linter_users
+        entry: pylint --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./users/]

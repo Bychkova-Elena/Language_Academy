@@ -10,10 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from datetime import timedelta
 import os
+from datetime import timedelta
 from pathlib import Path
-from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +38,6 @@ ALLOWED_HOSTS = []
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 # CORS_ALLOW_CREDENTIALS = True
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -60,7 +58,6 @@ INSTALLED_APPS = [
     'education',
     'frontend',
 ]
-
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -154,9 +151,7 @@ REST_FRAMEWORK = {
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
@@ -188,15 +183,17 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    
-    'AUTH_COOKIE': 'refreshToken',  # Cookie name. Enables cookies if value is set.
-    'AUTH_COOKIE_DOMAIN': None,     # A string like "example.com", or None for standard domain cookie.
-    'AUTH_COOKIE_SECURE': False,    # Whether the auth cookies should be secure (https:// only).
-     'AUTH_COOKIE_HTTP_ONLY' : True, # Http only cookie flag.It's not fetch by javascript.
-    'AUTH_COOKIE_PATH': '/',        # The path of the auth cookie.
-    'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
-                                # This can be 'Lax', 'Strict', or None to disable the flag.
+
+    # Cookie name. Enables cookies if value is set.
+    'AUTH_COOKIE': 'refreshToken',
+    # A string like "example.com", or None for standard domain cookie.
+    'AUTH_COOKIE_DOMAIN': None,
+    # Whether the auth cookies should be secure (https:// only).
+    'AUTH_COOKIE_SECURE': False,
+    # Http only cookie flag.It's not fetch by javascript.
+    'AUTH_COOKIE_HTTP_ONLY' : True,
+    # The path of the auth cookie.
+    'AUTH_COOKIE_PATH': '/',
+    # Whether to set the flag restricting cookie leaks on cross-site requests.
+    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
-
-
-

@@ -1,51 +1,54 @@
-from django.shortcuts import render
+
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Course, Homework, TimeTable
-from .serializers import TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from .serializers import (CourseSerializer, HomeworkByCourseSerializer,
+                          TimeTableByCourseSerializer)
+
 
 class GetCorseView(APIView):
-  
-    def get(self, request, format=None):
+    def get(self):
         '''Вывод групп пользователя'''
         try:
             user = self.request.user
-            
+
             courses = Course.objects.filter(student__user=user)
-               
             courses = CourseSerializer(courses, many=True)
 
             return Response({ 'courses': courses.data})
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving courses' })
+
+        except Exception as error:
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class GetTimeTableView(APIView):
-  
     def get(self, request, pk):
-        '''Вывод расписания группы'''
-        
         try:
+            timetable = TimeTable.objects.filter(course=pk)
+            serializer = TimeTableByCourseSerializer(timetable, many=True)
 
-          timetable = TimeTable.objects.filter(course=pk)
-          serializer = TimeTableByCourseSerializer(timetable, many=True)
-          return Response({ 'timetable': serializer.data})
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving timetable' })
-        
-      
+            return Response({ 'timetable': serializer.data})
+
+        except Exception as error:
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class GetHomeworkView(APIView):
-  
     def get(self, request, pk):
-        '''Вывод домашних заданий группы'''
-        
         try:
+            homework = Homework.objects.filter(course=pk)
+            serializer = HomeworkByCourseSerializer(homework, many=True)
 
-          homework = Homework.objects.filter(course=pk)
-          serializer = HomeworkByCourseSerializer(homework, many=True)
-          return Response({ 'homeworks':serializer.data})
-    
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving homework' })
+            return Response(data={'homeworks': serializer.data})
 
-
+        except Exception as error:
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

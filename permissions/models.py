@@ -1,6 +1,9 @@
 from django.db import models
-from users.models import User, UserProfile
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from education.models import Course
+from users.models import User, UserProfile
+
 
 class PermissionKey(models.TextChoices):
     READ_USER_PROFILE_SPECIFIC_USERS = 'READ_USER_PROFILE_SPECIFIC_USERS'
@@ -21,23 +24,36 @@ class PermissionKey(models.TextChoices):
     UPDATE_SPECIFIC_COURSES_MEMBERS = 'UPDATE_SPECIFIC_COURSES_MEMBERS'
     DELETE_SPECIFIC_COURSES = 'DELETE_SPECIFIC_COURSES'
 
+
 class PermissionTargetKey(models.TextChoices):
     OWN_ID = 'OWN_ID'
     STUDY_COURSES_IDS = 'STUDY_COURSES_IDS'
     TEACH_COURSES_IDS = 'TEACH_COURSES_IDS'
 
-    def getTargetsIds(user, key):
+    @staticmethod
+    def GetTargetsIds(user, key):
         match key:
             case PermissionTargetKey.OWN_ID:
                 return [user.id]
 
             case PermissionTargetKey.STUDY_COURSES_IDS:
-                return list(map(lambda course: course.id, Course.objects.filter(student__user=user)))
+                return list(
+                    map(
+                        lambda course: course.id,
+                        Course.objects.filter(student__user=user)
+                    )
+                )
 
             case PermissionTargetKey.TEACH_COURSES_IDS:
-                return list(map(lambda course: course.id, Course.objects.filter(teacher__user=user)))
+                return list(
+                    map(
+                        lambda course: course.id,
+                        Course.objects.filter(teacher__user=user)
+                    )
+                )
 
         return []
+
 
 class Permission(models.Model):
     class Meta:
@@ -45,50 +61,112 @@ class Permission(models.Model):
         verbose_name_plural = 'Права'
 
     DEFAULT_USER_PERMISSIONS = [
-        { 'key': PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
-        { 'key': PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
-        { 'key': PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
+        {'key': PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {'key': PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {'key': PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
     ]
 
     DEFAULT_STUDENT_PERMISSIONS = [
-        { 'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS },
+        {'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS},
 
-        { 'key': PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
-        { 'key': PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
-        
-        { 'key': PermissionKey.READ_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS },
+        {'key': PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {'key': PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+
+        {'key': PermissionKey.READ_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS},
     ]
 
     DEFAULT_TEACHER_PERMISSIONS = [
-        { 'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
+        {'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
 
-        { 'key': PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
-        { 'key': PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
-        { 'key': PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
-        { 'key': PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
+        {'key': PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {'key': PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {'key': PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {'key': PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
 
-        { 'key': PermissionKey.CREATE_COURSES },
-        { 'key': PermissionKey.READ_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
-        { 'key': PermissionKey.UPDATE_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
-        { 'key': PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
-        { 'key': PermissionKey.DELETE_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
+        {'key': PermissionKey.CREATE_COURSES},
+        {'key': PermissionKey.READ_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {'key': PermissionKey.UPDATE_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {'key': PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {'key': PermissionKey.DELETE_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
     ]
 
-    user = models.ForeignKey(verbose_name="Пользователь", to=User, related_name="owner", on_delete=models.CASCADE)
-    permissionKey = models.CharField(verbose_name="Права", choices=PermissionKey.choices, max_length=255)
+    user = models.ForeignKey(
+        verbose_name="Пользователь",
+        to=User, related_name="owner",
+        on_delete=models.CASCADE
+    )
+    permissionKey = models.CharField(
+        verbose_name="Права",
+        choices=PermissionKey.choices,
+        max_length=255
+    )
 
-    targetUserId = models.ForeignKey(verbose_name="User ID цели доступа", to=User, related_name="target", on_delete=models.CASCADE, blank=True, null=True)
-    targetUserIdKey = models.CharField(verbose_name="Ключ user ID цели доступа", choices=PermissionTargetKey.choices, max_length=255, blank=True, null=True)
+    targetUserId = models.ForeignKey(
+        verbose_name="User ID цели доступа",
+        to=User,
+        related_name="target",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    targetUserIdKey = models.CharField(
+        verbose_name="Ключ user ID цели доступа",
+        choices=PermissionTargetKey.choices,
+        max_length=255,
+        blank=True,
+        null=True
+    )
 
-    targetCourseId = models.ForeignKey(verbose_name="Course ID цели доступа", to=Course, on_delete=models.CASCADE, blank=True, null=True)
-    targetCourseIdKey = models.CharField(verbose_name="Ключ course ID цели доступа", choices=PermissionTargetKey.choices, max_length=255, blank=True, null=True)
+    targetCourseId = models.ForeignKey(
+        verbose_name="Course ID цели доступа",
+        to=Course,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    targetCourseIdKey = models.CharField(
+        verbose_name="Ключ course ID цели доступа",
+        choices=PermissionTargetKey.choices,
+        max_length=255,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return str(self.user.username)
 
-    def getDefaultPermissions(role):
+    @staticmethod
+    @receiver(post_save, sender=UserProfile)
+    def CreatePermissions(instance, created, **kwargs):
+        if created:
+            defaultUserPermissions = Permission.GetDefaultPermissions(
+                role=instance.role
+            )
+            Permission.CreateDefaultPermissions(
+                user=instance.user,
+                defaultPermissions=defaultUserPermissions
+            )
+
+    @staticmethod
+    def GetDefaultPermissions(role):
         defaultRoles = []
-        
+
         defaultRoles.extend(Permission.DEFAULT_USER_PERMISSIONS)
 
         if role == UserProfile.STUDENT:
@@ -99,34 +177,40 @@ class Permission(models.Model):
 
         return defaultRoles
 
-    def createDefaultPermissions(user, defaultRoles):
-        createdRoles = []
+    @staticmethod
+    def CreateDefaultPermissions(user, defaultPermissions):
+        createdPermissions = []
 
-        for defaultRole in defaultRoles:
-            createdRole = Permission.objects.create(
+        for defaultPermission in defaultPermissions:
+            createdPermission = Permission.objects.create(
                 user=user,
-                permissionKey=defaultRole['key'],
-                targetUserId=defaultRole.get('targetUserId', None),
-                targetUserIdKey=defaultRole.get('targetUserIdKey', None),
-                targetCourseId=defaultRole.get('targetCourseId', None),
-                targetCourseIdKey=defaultRole.get('targetCourseIdKey', None),
+                permissionKey=defaultPermission['key'],
+                targetUserId=defaultPermission.get('targetUserId', None),
+                targetUserIdKey=defaultPermission.get('targetUserIdKey', None),
+                targetCourseId=defaultPermission.get('targetCourseId', None),
+                targetCourseIdKey=defaultPermission.get(
+                    'targetCourseIdKey', None
+                ),
             )
 
-            createdRoles.append(createdRole)
+            createdPermissions.append(createdPermission)
 
-        return createdRoles
+        return createdPermissions
 
-    def canUserAccessByExistence(user, permissionKey):
+    @staticmethod
+    def CanUserAccessByExistence(user, permissionKey):
         if Permission.objects.filter(user=user, permissionKey=permissionKey).exists():
             return True
 
         return False
 
-    def canUserAccessByUserId(user, permissionKey, targetUserId):
+    @staticmethod
+    def CanUserAccessByUserId(user, permissionKey, targetUserId):
         if Permission.objects.filter(user=user, permissionKey=permissionKey, targetUserId=targetUserId).exists():
             return True
 
-        permissions = Permission.objects.filter(user=user, permissionKey=permissionKey)
+        permissions = Permission.objects.filter(
+            user=user, permissionKey=permissionKey)
 
         if not permissions.exists():
             return False
@@ -135,24 +219,28 @@ class Permission(models.Model):
 
         for permission in permissions:
             permissionTargetUserId = getattr(permission, 'targetUserId', None)
-            permissionTargetUserIdKey = getattr(permission, 'targetUserIdKey', None)
+            permissionTargetUserIdKey = getattr(
+                permission, 'targetUserIdKey', None)
 
             if permissionTargetUserId:
                 availableUsersIds.append(permissionTargetUserId)
 
             if permissionTargetUserIdKey:
-                availableUsersIds.extend(PermissionTargetKey.getTargetsIds(user=user, key=permissionTargetUserIdKey))
+                availableUsersIds.extend(PermissionTargetKey.GetTargetsIds(
+                    user=user, key=permissionTargetUserIdKey))
 
         if targetUserId in availableUsersIds:
             return True
 
         return False
 
-    def canUserAccessByCourseId(user, permissionKey, targetCourseId):
+    @staticmethod
+    def CanUserAccessByCourseId(user, permissionKey, targetCourseId):
         if Permission.objects.filter(user=user, permissionKey=permissionKey, targetCourseId=targetCourseId).exists():
             return True
 
-        permissions = Permission.objects.filter(user=user, permissionKey=permissionKey)
+        permissions = Permission.objects.filter(
+            user=user, permissionKey=permissionKey)
 
         if not permissions.exists():
             return False
@@ -160,14 +248,17 @@ class Permission(models.Model):
         availableCoursesIds = []
 
         for permission in permissions:
-            permissionTargetCourseId = getattr(permission, 'targetCourseId', None)
-            permissionTargetCourseIdKey = getattr(permission, 'targetCourseIdKey', None)
+            permissionTargetCourseId = getattr(
+                permission, 'targetCourseId', None)
+            permissionTargetCourseIdKey = getattr(
+                permission, 'targetCourseIdKey', None)
 
             if permissionTargetCourseId:
                 availableCoursesIds.append(permissionTargetCourseId)
 
             if permissionTargetCourseIdKey:
-                availableCoursesIds.extend(PermissionTargetKey.getTargetsIds(user=user, key=permissionTargetCourseIdKey))
+                availableCoursesIds.extend(PermissionTargetKey.GetTargetsIds(
+                    user=user, key=permissionTargetCourseIdKey))
 
         if targetCourseId in availableCoursesIds:
             return True
@@ -176,51 +267,122 @@ class Permission(models.Model):
 
     # User Profile Access
 
-    def canReadUserProfileSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanReadUserProfileSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
-    def canReadUserProfileAnyUsersSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanReadUserProfileAnyUsersSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
-    def canUpdateUserProfileSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanUpdateUserProfileSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
-    def canDeleteUserProfileSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanDeleteUserProfileSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
     # Homework Access
 
-    def canCreateHomeworkSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanCreateHomeworkSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
-    def canReadAssignedHomeworkSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanReadAssignedHomeworkSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
-    def canReadCreatedHomeworkSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanReadCreatedHomeworkSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
-    def canUpdateHomeworkSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanUpdateHomeworkSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
-    def canUpdateHomeworkDoneStatusSpecificUsers(user, targetUserId):
-        return Permission.canUserAccessByUserId(user, PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS, targetUserId)
+    @staticmethod
+    def CanUpdateHomeworkDoneStatusSpecificUsers(user, targetUserId):
+        return Permission.CanUserAccessByUserId(
+            user=user,
+            permissionKey=PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS,
+            targetUserId=targetUserId
+        )
 
-    def canDeleteHomeworkSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanDeleteHomeworkSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
     # Courses Access
 
-    def canCreateCourse(user):
-        return Permission.canUserAccessByExistence(user, PermissionKey.CREATE_COURSES)
+    @staticmethod
+    def CanCreateCourse(user):
+        return Permission.CanUserAccessByExistence(user, PermissionKey.CREATE_COURSES)
 
-    def canReadSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.READ_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanReadSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.READ_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
-    def canUpdateSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.UPDATE_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanUpdateSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.UPDATE_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )
 
-    def canUpdateSpecificCoursesMembers(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS, targetCourseId)
+    @staticmethod
+    def CanUpdateSpecificCoursesMembers(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS,
+            targetCourseId=targetCourseId
+        )
 
-    def canDeleteSpecificCourses(user, targetCourseId):
-        return Permission.canUserAccessByCourseId(user, PermissionKey.DELETE_SPECIFIC_COURSES, targetCourseId)
+    @staticmethod
+    def CanDeleteSpecificCourses(user, targetCourseId):
+        return Permission.CanUserAccessByCourseId(
+            user=user,
+            permissionKey=PermissionKey.DELETE_SPECIFIC_COURSES,
+            targetCourseId=targetCourseId
+        )

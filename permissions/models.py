@@ -24,6 +24,7 @@ class PermissionKey(models.TextChoices):
     UPDATE_SPECIFIC_COURSES_MEMBERS = 'UPDATE_SPECIFIC_COURSES_MEMBERS'
     DELETE_SPECIFIC_COURSES = 'DELETE_SPECIFIC_COURSES'
 
+
 class PermissionTargetKey(models.TextChoices):
     OWN_ID = 'OWN_ID'
     STUDY_COURSES_IDS = 'STUDY_COURSES_IDS'
@@ -252,7 +253,8 @@ class Permission(models.Model):
 
         for permission in permissions:
             permissionTargetUserId = getattr(permission, 'targetUserId', None)
-            permissionTargetUserIdKey = getattr(permission, 'targetUserIdKey', None)
+            permissionTargetUserIdKey = getattr(
+                permission, 'targetUserIdKey', None)
 
             if permissionTargetUserId:
                 availableUsersIds.append(permissionTargetUserId)
@@ -283,8 +285,10 @@ class Permission(models.Model):
         availableCoursesIds = []
 
         for permission in permissions:
-            permissionTargetCourseId = getattr(permission, 'targetCourseId', None)
-            permissionTargetCourseIdKey = getattr(permission, 'targetCourseIdKey', None)
+            permissionTargetCourseId = getattr(
+                permission, 'targetCourseId', None)
+            permissionTargetCourseIdKey = getattr(
+                permission, 'targetCourseIdKey', None)
 
             if permissionTargetCourseId:
                 availableCoursesIds.append(permissionTargetCourseId)

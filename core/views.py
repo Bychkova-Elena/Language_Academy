@@ -75,13 +75,6 @@ class LoginView(APIView):
             if user is None or not user.is_active:
                 return Response(data={ 'error': 'Неверный логин или пароль' }, status=status.HTTP_400_BAD_REQUEST)
 
-            print('canReadUserProfileSpecificUsers admin', Permission.canReadUserProfileSpecificUsers(user, 1))
-            print('canReadUserProfileSpecificUsers student_1', Permission.canReadUserProfileSpecificUsers(user, 2))
-            print('canReadUserProfileSpecificUsers teacher_1', Permission.canReadUserProfileSpecificUsers(user, 3))
-            print('canReadUserProfileAnyUsersSpecificCourses course1', Permission.canReadUserProfileAnyUsersSpecificCourses(user, 1))
-            print('canCreateCourse', Permission.canCreateCourse(user))
-            print('canCreateCourse', Permission.canCreateCourse(user))
-
             tokens = JWTTokens.getTokensByUser(user=user)
 
             JWTTokens.addTokensToResponse(response=response, tokens=tokens)

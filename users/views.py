@@ -94,7 +94,7 @@ class LanguageTeachersView(APIView):
                
             language = LanguageTeachersSerializer(language, many=True)
 
-            return Response({ 'Language': language.data}, status=status.HTTP_200_OK)
+            return Response(language.data, status=status.HTTP_200_OK)
             
 <<<<<<< HEAD
         except:
@@ -102,5 +102,9 @@ class LanguageTeachersView(APIView):
 >>>>>>> Group: updating and deleting teachers groups
 =======
         except Exception as error:
+<<<<<<< HEAD
             return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
 >>>>>>> Group:  status was added
+=======
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+>>>>>>> Group:  mistakes are fixed

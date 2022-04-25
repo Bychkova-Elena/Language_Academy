@@ -197,7 +197,6 @@ class Permission(models.Model):
     @staticmethod
     def GetDefaultPermissions(role):
         defaultRoles = []
-
         defaultRoles.extend(Permission.DEFAULT_USER_PERMISSIONS)
 
         if role == UserRole.STUDENT:

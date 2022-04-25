@@ -21,7 +21,7 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('name', 'level',  'language', 'price', 'student' )
+        exclude = ("teacher", "id")
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #

@@ -4,60 +4,45 @@ from .models import Course, Homework, TimeTable
 from .serializers import TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer, AddCourseSerializer, UpdateCourseSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from users.models import Teacher
-from django.shortcuts import get_object_or_404
+from users.models import Teacher, UserProfile
 from rest_framework import status
-
-class GetCorseView(APIView):
-  
-    def get(self, request, format=None):
-        '''Вывод групп пользователя'''
-        try:
-            user = self.request.user
-            
-            courses = Course.objects.filter(student__user=user)
-               
-            courses = CourseSerializer(courses, many=True)
-
-            return Response({ 'courses': courses.data})
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving courses' })
         
-class TeachersCourseView(APIView):
+class GetCourseView(APIView):
     permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
     
     def get(self, request, format=None):
-        '''Вывод групп учителя'''
+        '''Вывод групп'''
     
         try:
             
             user = self.request.user
+            userprofile = UserProfile.objects.get(user=user)
             params = self.request.query_params
 
             limit = params.get('limit', None)
             skip = params.get('skip', None)
-             
-            if TeachersOnly.has_object_permission(user): 
+            
+            if userprofile.role == "STUDENT":
+                 courses = Course.objects.filter(student__user=user)
+            else:
+            
+              
+              courses = Course.objects.filter(teacher__user=user) 
             
               if limit:
-                  courses = Course.objects.filter(teacher__user=user)[:int(limit)]
+                  courses = courses[:int(limit)]
               if skip: 
-                  courses = Course.objects.filter(teacher__user=user)[int(skip):]
-              else:
-                  courses = Course.objects.filter(teacher__user=user)
-             
-               
-              courses = CourseSerializer(courses, many=True)
-
-              return Response({ 'Course': courses.data}, status=status.HTTP_200_OK)
+                  courses = courses[int(skip):]
             
-            else:
-              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+            courses = CourseSerializer(courses, many=True)
+
+            return Response(courses.data, status=status.HTTP_200_OK)
         except Exception as error:
-            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def post(self, request):
         '''Добавление группы'''
+        permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
     
         try:
             
@@ -72,21 +57,18 @@ class TeachersCourseView(APIView):
             }
              
              
-            if TeachersOnly.has_object_permission(user):
               
-                course = AddCourseSerializer(data = data)
-                if course.is_valid():
+            course = AddCourseSerializer(data = data)
+            if course.is_valid():
                     course.save()
-                return Response({ 'Course': course.data}, status=status.HTTP_201_CREATED)
-            else:
-              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(course.data, status=status.HTTP_201_CREATED)
           
         except Exception as error:
-            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
       
 class UpdateDeleteCorseView(APIView):
-    permission_classes=[permissions.IsAuthenticated, TeachersOnly]   
+    permission_classes=[permissions.IsAuthenticated]   
       
     def put(self, request, courseId=None):
         '''Редактирование групп учителя'''
@@ -96,38 +78,38 @@ class UpdateDeleteCorseView(APIView):
             user = self.request.user
              
             if TeachersOnly.has_object_permission(user):
-                
-              courses = Course.objects.all()
-              courses = get_object_or_404(courses, pk=courseId)
+              
+              courses = Course.objects.get(pk=courseId)
               course = UpdateCourseSerializer(instance=courses, data=request.data)
               if course.is_valid():
                 course.save()
-              return Response({ 'Course': course.data}, status=status.HTTP_200_OK) 
+              return Response(course.data, status=status.HTTP_200_OK) 
             
             else:
-              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+              return Response({ 'error': 'Не учитель' }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
-            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def delete(self, request, courseId=None):
         '''Удаление групп учителя'''
-    
+        
+        permission_classes=[permissions.IsAuthenticated] 
+        
         try:
             
             user = self.request.user
              
             if TeachersOnly.has_object_permission(user):
                 
-              courses = Course.objects.all()
-              course = get_object_or_404(courses, pk=courseId)
+              course = Course.objects.get(pk=courseId)
               course.delete()
               return Response(status=status.HTTP_200_OK)
             
             
             else:
-              return Response({ 'error': 'Not a teacher' }, status=status.HTTP_400_BAD_REQUEST)
+              return Response({ 'error': 'Не учитель' }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
-            return Response({ 'error': str(error) }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 class GetTimeTableView(APIView):
@@ -139,9 +121,9 @@ class GetTimeTableView(APIView):
 
           timetable = TimeTable.objects.filter(course=pk)
           serializer = TimeTableByCourseSerializer(timetable, many=True)
-          return Response({ 'timetable': serializer.data})
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving timetable' })
+          return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
       
 class GetHomeworkView(APIView):
@@ -153,9 +135,9 @@ class GetHomeworkView(APIView):
 
           homework = Homework.objects.filter(course=pk)
           serializer = HomeworkByCourseSerializer(homework, many=True)
-          return Response({ 'homeworks':serializer.data})
+          return Response(serializer.data, status=status.HTTP_200_OK)
     
-        except:
-            return Response({ 'error': 'Something went wrong when retrieving homework' })
+        except Exception as error:
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

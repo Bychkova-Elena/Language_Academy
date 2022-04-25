@@ -18,7 +18,7 @@ class AddCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        exclude = ("student", )
+        exclude = ("student", "id" )
         
 class UpdateCourseSerializer(serializers.ModelSerializer):
     # редактирование групп #

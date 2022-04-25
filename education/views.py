@@ -33,11 +33,12 @@ class GetCourseView(APIView):
             
               
               courses = Course.objects.filter(teacher__user=user) 
+              
+              if skip: 
+                courses = courses[int(skip):]
             
               if limit:
-                  courses = courses[:int(limit)]
-              if skip: 
-                  courses = courses[int(skip):]
+                courses = courses[:int(limit)]
             
             courses = CourseSerializer(courses, many=True)
 
@@ -47,7 +48,6 @@ class GetCourseView(APIView):
         
     def post(self, request):
         '''Добавление группы'''
-        permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
     
         try:
             
@@ -71,7 +71,7 @@ class GetCourseView(APIView):
 
       
 class UpdateDeleteCorseView(APIView):
-    permission_classes=[permissions.IsAuthenticated]   
+    permission_classes=[permissions.IsAuthenticated, TeachersOnly]   
       
     def put(self, request, courseId=None):
         '''Редактирование групп учителя'''
@@ -95,8 +95,6 @@ class UpdateDeleteCorseView(APIView):
         
     def delete(self, request, courseId=None):
         '''Удаление групп учителя'''
-        
-        permission_classes=[permissions.IsAuthenticated] 
         
         try:
             

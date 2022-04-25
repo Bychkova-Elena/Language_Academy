@@ -63,6 +63,7 @@ class Permission(models.Model):
         { 'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
 
         { 'key': PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
+        { 'key': PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS, 'targetUserIdKey': PermissionTargetKey.OWN_ID },
         { 'key': PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
         { 'key': PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES, 'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS },
 
@@ -87,6 +88,7 @@ class Permission(models.Model):
 
     def getDefaultPermissions(role):
         defaultRoles = []
+        
         defaultRoles.extend(Permission.DEFAULT_USER_PERMISSIONS)
 
         if role == UserProfile.STUDENT:
@@ -191,13 +193,13 @@ class Permission(models.Model):
     def canCreateHomeworkSpecificCourses(user, targetCourseId):
         return Permission.canUserAccessByCourseId(user, PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES, targetCourseId)
 
-    def canRadAssignedHomeworkSpecificUsers(user, targetUserId):
+    def canReadAssignedHomeworkSpecificUsers(user, targetUserId):
         return Permission.canUserAccessByUserId(user, PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS, targetUserId)
 
     def canReadCreatedHomeworkSpecificUsers(user, targetUserId):
         return Permission.canUserAccessByUserId(user, PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS, targetUserId)
 
-    def canUpdateHomeworkSpecificCourse(user, targetCourseId):
+    def canUpdateHomeworkSpecificCourses(user, targetCourseId):
         return Permission.canUserAccessByCourseId(user, PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES, targetCourseId)
 
     def canUpdateHomeworkDoneStatusSpecificUsers(user, targetUserId):

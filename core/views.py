@@ -1,3 +1,4 @@
+from core.validators import RequestValidator
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import permissions, status
@@ -6,8 +7,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
 from users.models import Student, Teacher, UserProfile, UserRole
 from users.validators import UserValidators
-
-from core.validators import RequestValidator
 
 from .jwt_tokens import JWTTokens
 from .serializers import UserSerializer

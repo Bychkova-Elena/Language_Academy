@@ -1,10 +1,9 @@
 
+from permissions.models import Permission
+from permissions.serializers import PermissionSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from permissions.models import Permission
-from permissions.serializers import PermissionSerializer
 
 
 class PermissionsView(APIView):

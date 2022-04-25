@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
-from permissions.models import Permission, PermissionTargetKey
 
 from users.validators import UserValidators
 from core.validators import RequestValidator
@@ -82,7 +81,6 @@ class LoginView(APIView):
             return response
 
         except Exception as error:
-            print(error)
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LogoutView(APIView):

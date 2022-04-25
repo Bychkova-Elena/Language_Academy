@@ -26,14 +26,13 @@ class GetCourseView(APIView):
                  courses = Course.objects.filter(student__user=user)
             else:
             
-              
               courses = Course.objects.filter(teacher__user=user) 
               
-              if skip: 
-                courses = courses[int(skip):]
+            if skip: 
+              courses = courses[int(skip):]
             
-              if limit:
-                courses = courses[:int(limit)]
+            if limit:
+              courses = courses[:int(limit)]
             
             courses = CourseSerializer(courses, many=True)
 

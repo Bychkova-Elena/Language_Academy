@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from users.models import Student, Teacher, UserProfile
+from users.models import Permission, Student, Teacher, UserProfile
 from users.validators import UserValidators
 
 from core.validators import RequestValidator
@@ -60,14 +60,11 @@ class SignupView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            user = User.objects.create_user(
-                username=username, password=password)
+            user = User.objects.create_user(username=username, password=password)
 
-            userProfile = UserProfile.objects.get(user=user)
-            userProfile.role = role
-            userProfile.save()
+            user_profile = UserProfile.objects.create(user=user, role=role)
 
-            if role == "STUDENT":
+            if user_profile.role == "STUDENT":
                 Student.objects.create(user=user)
             else:
                 Teacher.objects.create(user=user)

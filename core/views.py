@@ -16,7 +16,8 @@ from .serializers import UserSerializer
 class SignupView(APIView):
     permission_classes = (permissions.AllowAny, )
 
-    def post(self, request):
+    @staticmethod
+    def post( request):
         try:
             data = request.data
 
@@ -35,25 +36,25 @@ class SignupView(APIView):
             password = data['password']
             role = data['role']
 
-            if not UserValidators.isValidUsername(username=username):
+            if not UserValidators.IsValidUsername(username=username):
                 return Response(
                     data={'error': 'Имя пользователя является недопустимым'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if not UserValidators.isValidPassword(password=password):
+            if not UserValidators.IsValidPassword(password=password):
                 return Response(
                     data={'error': 'Пароль является недопустимым'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if not UserValidators.isValidUserRole(role=role):
+            if not UserValidators.IsValidUserRole(role=role):
                 return Response(
                     data={'error': 'Роль пользователя является недопустимой'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if UserValidators.isUserExists(username=username):
+            if UserValidators.IsUserExists(username=username):
                 return Response(
                     data={'error': 'Пользователь уже существует'},
                     status=status.HTTP_400_BAD_REQUEST
@@ -82,7 +83,8 @@ class SignupView(APIView):
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         try:
             response = Response(status=status.HTTP_200_OK)
 
@@ -126,7 +128,8 @@ class LoginView(APIView):
 class LogoutView(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         try:
             response = Response(status=status.HTTP_200_OK)
 
@@ -159,7 +162,8 @@ class LogoutView(APIView):
 class TokenRefreshView(APIView):
     permission_classes = (permissions.AllowAny,)
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         try:
             response = Response(status=status.HTTP_201_CREATED)
 
@@ -190,9 +194,10 @@ class TokenRefreshView(APIView):
 
 
 class DeleteAccountView(APIView):
-    def delete(self):
+    @staticmethod
+    def delete(request):
         try:
-            user = self.request.user
+            user = request.user
 
             User.objects.filter(id=user.id).delete()
 
@@ -203,19 +208,24 @@ class DeleteAccountView(APIView):
 
 
 class MeView(APIView):
-    def get(self, request):
+    @staticmethod
+    def get(request):
         try:
-            user = self.request.user
+            user = request.user
 
             if not user:
-                Response(data={'error': 'Невалидный пользователь'},
-                         status=status.HTTP_400_BAD_REQUEST)
+                Response(
+                    data={'error': 'Невалидный пользователь'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             userProfile = UserProfile.objects.get(user=user)
 
             if not userProfile:
-                Response(data={'error': 'Невалидный пользователь'},
-                         status=status.HTTP_400_BAD_REQUEST)
+                Response(
+                    data={'error': 'Невалидный пользователь'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             return Response(
                 data={
@@ -229,13 +239,17 @@ class MeView(APIView):
             )
 
         except Exception as error:
-            return Response(data={'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class GetUsersView(APIView):
     permission_classes = (permissions.AllowAny, )
 
-    def get(self, request, format=None):
+    @staticmethod
+    def get(format=None):
         try:
             users = User.objects.all()
 

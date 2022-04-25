@@ -9,10 +9,11 @@ from .serializers import (CourseSerializer, HomeworkByCourseSerializer,
 
 
 class GetCorseView(APIView):
-    def get(self):
+    @staticmethod
+    def get(request):
         '''Вывод групп пользователя'''
         try:
-            user = self.request.user
+            user = request.user
 
             courses = Course.objects.filter(student__user=user)
             courses = CourseSerializer(courses, many=True)
@@ -26,7 +27,8 @@ class GetCorseView(APIView):
             )
 
 class GetTimeTableView(APIView):
-    def get(self, request, pk):
+    @staticmethod
+    def get(pk):
         try:
             timetable = TimeTable.objects.filter(course=pk)
             serializer = TimeTableByCourseSerializer(timetable, many=True)
@@ -40,7 +42,8 @@ class GetTimeTableView(APIView):
             )
 
 class GetHomeworkView(APIView):
-    def get(self, request, pk):
+    @staticmethod
+    def get(pk):
         try:
             homework = Homework.objects.filter(course=pk)
             serializer = HomeworkByCourseSerializer(homework, many=True)

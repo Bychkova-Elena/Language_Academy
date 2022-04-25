@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from languages.models import Language
-from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class UserProfile(models.Model):
@@ -9,7 +10,7 @@ class UserProfile(models.Model):
         app_label = 'auth'
         verbose_name = 'Профиль пользователя'
         verbose_name_plural = 'Профиль пользователей'
-        ordering = ('user')
+        ordering = ('user', )
 
     STUDENT = 'STUDENT'
     TEACHER = 'TEACHER'
@@ -35,14 +36,13 @@ class UserProfile(models.Model):
     city = models.CharField(verbose_name="Город", max_length=20, default='')
 
     def __str__(self):
-        return self.firstName
-    
-    def tokens(self):
-        refresh=RefreshToken.for_user(self)
-        return{
-            'refresh':str(refresh),
-            'access': str(refresh.access_token)
-        }
+        return str(self.firstName)
+
+    @staticmethod
+    @receiver(post_save, sender=User)
+    def CreateProfile(instance, created, **kwargs):
+        if created:
+            UserProfile.objects.create(user=instance)
 
 class Teacher(models.Model):
     user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
@@ -63,7 +63,7 @@ class Student(models.Model):
         app_label = 'auth'
         verbose_name = 'Ученик'
         verbose_name_plural = 'Ученики'
-        ordering = ('user')
+        ordering = ('user', )
 
     user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
 

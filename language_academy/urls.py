@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('education/', include("education.urls")),
@@ -14,5 +13,3 @@ urlpatterns = [
     path('djoser/', include('djoser.urls.jwt')),
     path('', include('frontend.urls')),
 ]
-
-

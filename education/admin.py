@@ -39,7 +39,7 @@ class HomeworkAdmin(admin.ModelAdmin):
     list_filter = ("onEveryLesson", "draft")
     list_editable = ("draft",)
     search_fields = ("name", "course__name")
-    actions = ["publish", "unpublish"]
+    actions = ["Publish", "Unpublish"]
     raw_id_fields = ["course", ]
     save_as = True
     list_editable = ("onEveryLesson",)
@@ -55,7 +55,7 @@ class HomeworkAdmin(admin.ModelAdmin):
         })
     )
 
-    def unpublish(self, request, queryset):
+    def Unpublish(self, request, queryset):
         #Снять с публикации#
         rowUpdate = queryset.update(draft=True)
 
@@ -66,7 +66,7 @@ class HomeworkAdmin(admin.ModelAdmin):
 
         self.message_user(request, f"{messageBit}")
 
-    def publish(self, request, queryset):
+    def Publish(self, request, queryset):
         #Опубликовать#
         rowUpdate = queryset.update(draft=False)
 
@@ -77,11 +77,11 @@ class HomeworkAdmin(admin.ModelAdmin):
 
         self.message_user(request, f"{messageBit}")
 
-    publish.short_description = "Опубликовать"
-    publish.allowed_permissions = ('change', )
+    Publish.short_description = "Опубликовать"
+    Publish.allowed_permissions = ('change', )
 
-    unpublish.short_description = "Снять с публикации"
-    unpublish.allowed_permissions = ('change',)
+    Unpublish.short_description = "Снять с публикации"
+    Unpublish.allowed_permissions = ('change',)
 
 @admin.register(TimeTable)
 class TimeTableAdmin(admin.ModelAdmin):

@@ -1,4 +1,4 @@
-from rest_framework import fields, serializers
+from rest_framework import serializers
 
 from .models import Course, Homework, TimeTable
 
@@ -12,7 +12,7 @@ class TimeTableByCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeTable
         exclude = ("course", )
-        
+
 class HomeworkByCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Homework

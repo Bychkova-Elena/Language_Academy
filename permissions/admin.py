@@ -7,7 +7,7 @@ from .models import Permission
 class PermissionAdmin(admin.ModelAdmin):
     list_display = (
         "user",
-        "permissionKey",
+        "key",
         "targetUserId",
         "targetUserIdKey",
         "targetCourseId",

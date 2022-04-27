@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from education.models import Course
-from users.models import User, UserProfile
+from users.models import User, UserProfile, UserRole
 
 
 class PermissionKey(models.TextChoices):
@@ -61,49 +61,81 @@ class Permission(models.Model):
         verbose_name_plural = 'Права'
 
     DEFAULT_USER_PERMISSIONS = [
-        {'key': PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS,
-            'targetUserIdKey': PermissionTargetKey.OWN_ID},
-        {'key': PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS,
-            'targetUserIdKey': PermissionTargetKey.OWN_ID},
-        {'key': PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS,
-            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {
+            'key': PermissionKey.READ_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID
+        },
+        {
+            'key': PermissionKey.UPDATE_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID
+        },
+        {
+            'key': PermissionKey.DELETE_USER_PROFILE_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID
+        },
     ]
 
     DEFAULT_STUDENT_PERMISSIONS = [
-        {'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS},
+        {
+            'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS
+        },
 
-        {'key': PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS,
+        {
+            'key': PermissionKey.READ_ASSIGNED_HOMEWORK_SPECIFIC_USERS,
             'targetUserIdKey': PermissionTargetKey.OWN_ID},
-        {'key': PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS,
-            'targetUserIdKey': PermissionTargetKey.OWN_ID},
+        {
+            'key': PermissionKey.UPDATE_HOMEWORK_DONE_STATUS_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID
+        },
 
-        {'key': PermissionKey.READ_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS},
+        {
+            'key': PermissionKey.READ_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.STUDY_COURSES_IDS
+        },
     ]
 
     DEFAULT_TEACHER_PERMISSIONS = [
-        {'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {
+            'key': PermissionKey.READ_USER_PROFILE_ANY_USERS_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
 
-        {'key': PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
-        {'key': PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS,
-            'targetUserIdKey': PermissionTargetKey.OWN_ID},
-        {'key': PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
-        {'key': PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {
+            'key': PermissionKey.CREATE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
+        {
+            'key': PermissionKey.READ_CREATED_HOMEWORK_SPECIFIC_USERS,
+            'targetUserIdKey': PermissionTargetKey.OWN_ID
+        },
+        {
+            'key': PermissionKey.UPDATE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
+        {
+            'key': PermissionKey.DELETE_HOMEWORK_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
 
-        {'key': PermissionKey.CREATE_COURSES},
-        {'key': PermissionKey.READ_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
-        {'key': PermissionKey.UPDATE_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
-        {'key': PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
-        {'key': PermissionKey.DELETE_SPECIFIC_COURSES,
-            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS},
+        {
+            'key': PermissionKey.CREATE_COURSES},
+        {
+            'key': PermissionKey.READ_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
+        {
+            'key': PermissionKey.UPDATE_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
+        {
+            'key': PermissionKey.UPDATE_SPECIFIC_COURSES_MEMBERS,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
+        {
+            'key': PermissionKey.DELETE_SPECIFIC_COURSES,
+            'targetCourseIdKey': PermissionTargetKey.TEACH_COURSES_IDS
+        },
     ]
 
     user = models.ForeignKey(
@@ -111,8 +143,8 @@ class Permission(models.Model):
         to=User, related_name="owner",
         on_delete=models.CASCADE
     )
-    permissionKey = models.CharField(
-        verbose_name="Права",
+    key = models.CharField(
+        verbose_name="Ключ",
         choices=PermissionKey.choices,
         max_length=255
     )
@@ -169,10 +201,10 @@ class Permission(models.Model):
 
         defaultRoles.extend(Permission.DEFAULT_USER_PERMISSIONS)
 
-        if role == UserProfile.STUDENT:
+        if role == UserRole.STUDENT:
             defaultRoles.extend(Permission.DEFAULT_STUDENT_PERMISSIONS)
 
-        if role == UserProfile.TEACHER:
+        if role == UserRole.TEACHER:
             defaultRoles.extend(Permission.DEFAULT_TEACHER_PERMISSIONS)
 
         return defaultRoles
@@ -184,7 +216,7 @@ class Permission(models.Model):
         for defaultPermission in defaultPermissions:
             createdPermission = Permission.objects.create(
                 user=user,
-                permissionKey=defaultPermission['key'],
+                key=defaultPermission['key'],
                 targetUserId=defaultPermission.get('targetUserId', None),
                 targetUserIdKey=defaultPermission.get('targetUserIdKey', None),
                 targetCourseId=defaultPermission.get('targetCourseId', None),
@@ -199,18 +231,21 @@ class Permission(models.Model):
 
     @staticmethod
     def CanUserAccessByExistence(user, permissionKey):
-        if Permission.objects.filter(user=user, permissionKey=permissionKey).exists():
+        if Permission.objects.filter(user=user, key=permissionKey).exists():
             return True
 
         return False
 
     @staticmethod
     def CanUserAccessByUserId(user, permissionKey, targetUserId):
-        if Permission.objects.filter(user=user, permissionKey=permissionKey, targetUserId=targetUserId).exists():
+        if Permission.objects.filter(
+            user=user,
+            key=permissionKey,
+            targetUserId=targetUserId
+        ).exists():
             return True
 
-        permissions = Permission.objects.filter(
-            user=user, permissionKey=permissionKey)
+        permissions = Permission.objects.filter(user=user, key=permissionKey)
 
         if not permissions.exists():
             return False
@@ -236,11 +271,15 @@ class Permission(models.Model):
 
     @staticmethod
     def CanUserAccessByCourseId(user, permissionKey, targetCourseId):
-        if Permission.objects.filter(user=user, permissionKey=permissionKey, targetCourseId=targetCourseId).exists():
+        if Permission.objects.filter(
+            user=user,
+            key=permissionKey,
+            targetCourseId=targetCourseId
+        ).exists():
             return True
 
         permissions = Permission.objects.filter(
-            user=user, permissionKey=permissionKey)
+            user=user, key=permissionKey)
 
         if not permissions.exists():
             return False

@@ -1,9 +1,11 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from languages.models import Language
 
+
+class UserRole(models.TextChoices):
+    STUDENT = 'STUDENT'
+    TEACHER = 'TEACHER'
 
 class UserProfile(models.Model):
     class Meta:
@@ -11,13 +13,6 @@ class UserProfile(models.Model):
         verbose_name = 'Профиль пользователя'
         verbose_name_plural = 'Профиль пользователей'
         ordering = ('user', )
-
-    STUDENT = 'STUDENT'
-    TEACHER = 'TEACHER'
-    ROLE = [
-        (STUDENT, 'STUDENT'),
-        (TEACHER, 'TEACHER')
-    ]
 
     user = models.OneToOneField(
         verbose_name="Пользователь",
@@ -27,7 +22,7 @@ class UserProfile(models.Model):
     role = models.CharField(
         verbose_name="Роль",
         max_length=20,
-        choices=ROLE,
+        choices=UserRole.choices,
         default=""
     )
     firstName = models.CharField(verbose_name="Имя", max_length=255, default='')
@@ -38,11 +33,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return str(self.firstName)
 
-    @staticmethod
-    @receiver(post_save, sender=User)
-    def CreateProfile(instance, created, **kwargs):
-        if created:
-            UserProfile.objects.create(user=instance)
 
 class Teacher(models.Model):
     user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)

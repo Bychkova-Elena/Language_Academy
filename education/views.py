@@ -70,13 +70,11 @@ class UpdateDeleteCorseView(APIView):
     permission_classes=[permissions.IsAuthenticated, TeachersOnly]   
       
     def put(self, request, courseId=None):
-        '''Редактирование групп учителя'''
+        '''Редактирование групп учителя''' 
     
         try:
-            
-            user = self.request.user
              
-            if TeachersOnly.has_object_permission(user):
+            if TeachersOnly.has_object_permission(self, request):
               
               courses = Course.objects.get(pk=courseId)
               course = UpdateCourseSerializer(instance=courses, data=request.data)
@@ -93,10 +91,8 @@ class UpdateDeleteCorseView(APIView):
         '''Удаление групп учителя'''
         
         try:
-            
-            user = self.request.user
              
-            if TeachersOnly.has_object_permission(user):
+            if TeachersOnly.has_object_permission(self, request):
                 
               course = Course.objects.get(pk=courseId)
               course.delete()

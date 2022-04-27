@@ -3,6 +3,10 @@ from users.models import Teacher
     
 class TeachersOnly(permissions.BasePermission):
     
-    def has_object_permission(user):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            return True
+    
+    def has_object_permission(self, request):
         
-        return Teacher.objects.filter(user = user).exists()
+        return Teacher.objects.filter(user = request.user).exists()

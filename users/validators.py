@@ -1,18 +1,23 @@
-from .models import UserProfile
 from django.contrib.auth.models import User
+
+from .models import UserProfile
+
 
 class UserValidators:
     USERNAME_MIN_LENGTH = 6
     USERNAME_ACCEPTED_SYMBOLS = "abcdefghijklmnopqrstuvwxyz0123456789-_.@"
     PASSWORD_MIN_LENGTH = 6
 
-    def isUserExists(username) -> bool:
+    @staticmethod
+    def IsUserExists(username) -> bool:
         return User.objects.filter(username=username).exists()
 
-    def isValidUserRole(role) -> bool:
+    @staticmethod
+    def IsValidUserRole(role) -> bool:
         return role in [UserProfile.STUDENT, UserProfile.TEACHER]
 
-    def isValidUsername(username) -> bool:
+    @staticmethod
+    def IsValidUsername(username) -> bool:
         if len(username) < UserValidators.USERNAME_MIN_LENGTH:
             return False
 
@@ -21,7 +26,8 @@ class UserValidators:
 
         return True
 
-    def isValidPassword(password) -> bool:
+    @staticmethod
+    def IsValidPassword(password) -> bool:
         if len(password) < UserValidators.PASSWORD_MIN_LENGTH:
             return False
 

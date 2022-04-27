@@ -1,48 +1,52 @@
 from django.contrib import admin
-from .models import Teacher, Student, UserProfile
+
+from .models import Student, Teacher, UserProfile
+
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-  list_display = ("user",)
-  list_filter = ("language", )
-  search_fields = ("user__username", )
-  raw_id_fields = ["user", ]
-  
+    list_display = ("user",)
+    list_filter = ("language", )
+    search_fields = ("user__username", )
+    raw_id_fields = ["user", ]
+
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-  list_display = ("user", )
-  search_fields = ("user__username", )
-  raw_id_fields = ["user", ]
-  
+    list_display = ("user", )
+    search_fields = ("user__username", )
+    raw_id_fields = ["user", ]
+
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-  list_display = ("user", "role", "firstName", "lastName")
-  list_filter = ("role", )
-  search_fields = ("firstName", "lastName")
-  raw_id_fields = ["user", ]
-  
-  actions = ["changeOnStudent","changeOnTeacher"]
+    list_display = ("user", "role", "firstName", "lastName")
+    list_filter = ("role", )
+    search_fields = ("firstName", "lastName")
+    raw_id_fields = ["user", ]
 
-  def changeOnStudent(self, request, queryset):
-        
-        row_update = queryset.update(role='STUDENT')
-        if row_update == 1:
-            message_bit = "The status of 1 entry has been changed"
+    actions = ["ChangeOnStudent","ChangeOnTeacher"]
+
+    def ChangeOnStudent(self, request, queryset):
+        rowUpdate = queryset.update(role='STUDENT')
+
+        if rowUpdate == 1:
+            messageBit = "The status of 1 entry has been changed"
         else:
-            message_bit = f"The status of {row_update} entries has been changed"
-        self.message_user(request, f"{message_bit}")
+            messageBit = f"The status of {rowUpdate} entries has been changed"
 
-  def changeOnTeacher(self, request, queryset):
-        
-        row_update = queryset.update(role='TEACHER')
-        if row_update == 1:
-            message_bit = "The status of 1 entry has been changed"
+        self.message_user(request, f"{messageBit}")
+
+    def ChangeOnTeacher(self, request, queryset):
+        rowUpdate = queryset.update(role='TEACHER')
+
+        if rowUpdate == 1:
+            messageBit = "The status of 1 entry has been changed"
         else:
-            message_bit = f"The status of {row_update} entries has been changed"
-        self.message_user(request, f"{message_bit}")
-        
-  changeOnStudent.short_description = "Сделать студентом"
-  changeOnStudent.allowed_permissions = ('change', )
+            messageBit = f"The status of {rowUpdate} entries has been changed"
 
-  changeOnTeacher.short_description = "Сделать учителем"
-  changeOnTeacher.allowed_permissions = ('change', )
+        self.message_user(request, f"{messageBit}")
+
+    ChangeOnStudent.short_description = "Сделать студентом"
+    ChangeOnStudent.allowed_permissions = ('change', )
+
+    ChangeOnTeacher.short_description = "Сделать учителем"
+    ChangeOnTeacher.allowed_permissions = ('change', )

@@ -1,9 +1,8 @@
 from django.urls import path
-from .views import SignupView, LoginView,  LogoutView, DeleteAccountView, GetUsersView, TokenRefreshView, MeView
+from rest_framework_simplejwt.views import TokenVerifyView
 
-from rest_framework_simplejwt.views import (
-    TokenVerifyView
-)
+from .views import (DeleteAccountView, GetUsersView, LoginView, LogoutView,
+                    MeView, SignupView, TokenRefreshView)
 
 urlpatterns = [
     path('delete', DeleteAccountView.as_view()),

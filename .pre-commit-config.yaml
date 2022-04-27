@@ -1,0 +1,51 @@
+fail_fast: true
+repos:
+  - repo: local
+    hooks:
+      - id: linter_core
+        name: linter_core
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./core/]
+        exclude: (manage.py|migrations|__pycache__)
+
+      - id: linter_education
+        name: linter_education
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./education/]
+        exclude: (manage.py|migrations|__pycache__)
+
+      - id: linter_language_academy
+        name: linter_language_academy
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./language_academy/]
+        exclude: (manage.py|migrations|__pycache__)
+
+      - id: linter_languages
+        name: linter_languages
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./languages/]
+        exclude: (manage.py|migrations|__pycache__)
+
+      - id: linter_permissions
+        name: linter_permissions
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./permissions/]
+        exclude: (manage.py|migrations|__pycache__)
+
+      - id: linter_users
+        name: linter_users
+        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
+        language: system
+        types: [python]
+        args: [./users/]
+        exclude: (manage.py|migrations|__pycache__)

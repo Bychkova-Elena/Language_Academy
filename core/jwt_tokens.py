@@ -1,11 +1,13 @@
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 class JWTTokens:
     REFRESH_TOKEN_KEY = settings.SIMPLE_JWT['AUTH_COOKIE']
     ACCESS_TOKEN_KEY = 'accessToken'
 
-    def getTokensByUser(user) -> dict:
+    @staticmethod
+    def GetTokensByUser(user) -> dict:
         refreshToken = RefreshToken.for_user(user)
 
         tokens = {}
@@ -14,18 +16,20 @@ class JWTTokens:
 
         return tokens
 
-    def getNewTokens(refreshToken) -> dict:
+    @staticmethod
+    def GetNewTokens(refreshToken) -> dict:
         refreshToken = RefreshToken(refreshToken)
-        
+
         tokens = {}
         tokens[JWTTokens.REFRESH_TOKEN_KEY] = str(refreshToken)
         tokens[JWTTokens.ACCESS_TOKEN_KEY] = str(refreshToken.access_token)
 
         return tokens
 
-    def addRefreshTokenToCookie(response, refreshToken) -> None:
+    @staticmethod
+    def AddRefreshTokenToCookie(response, refreshToken) -> None:
         response.set_cookie(
-            key = JWTTokens.REFRESH_TOKEN_KEY, 
+            key = JWTTokens.REFRESH_TOKEN_KEY,
             value = refreshToken,
             expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
             secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
@@ -33,16 +37,19 @@ class JWTTokens:
             samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
         )
 
-    def addAccessTokenToResponse(response, accessToken) -> None:
+    @staticmethod
+    def AddAccessTokenToResponse(response, accessToken) -> None:
         if response.data is None:
             response.data = {}
-        
+
         response.data[JWTTokens.ACCESS_TOKEN_KEY] = accessToken
 
-    def addTokensToResponse(response, tokens) -> None:
-        JWTTokens.addRefreshTokenToCookie(response, tokens[JWTTokens.REFRESH_TOKEN_KEY])
-        JWTTokens.addAccessTokenToResponse(response, tokens[JWTTokens.ACCESS_TOKEN_KEY])
+    @staticmethod
+    def AddTokensToResponse(response, tokens) -> None:
+        JWTTokens.AddRefreshTokenToCookie(response, tokens[JWTTokens.REFRESH_TOKEN_KEY])
+        JWTTokens.AddAccessTokenToResponse(response, tokens[JWTTokens.ACCESS_TOKEN_KEY])
 
-    def outdateTokens(refreshToken) -> None:
+    @staticmethod
+    def OutdateTokens(refreshToken) -> None:
         tokens = RefreshToken(refreshToken)
         tokens.blacklist()

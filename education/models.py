@@ -1,62 +1,74 @@
+import django.utils.timezone
 from django.db import models
 from languages.models import Language, Level
-from users.models import Teacher, Student
-import django.utils.timezone
+from users.models import Student, Teacher
 
 
 class Course(models.Model):
-    '''Курсы'''
-    name = models.CharField("Курс", max_length=150)
-    level = models.ForeignKey(
-        Level, verbose_name="Уровень", on_delete=models.PROTECT, null=True, blank=True)
-    price = models.PositiveIntegerField(
-        "Цена", default=0, help_text="указывать цену в рублях")
-    language = models.ForeignKey(
-        Language, verbose_name="Язык", on_delete=models.PROTECT)
-    teacher = models.ForeignKey(
-        Teacher, verbose_name="Учитель", on_delete=models.PROTECT)
-    student = models.ManyToManyField(Student, verbose_name="Студент")
-
-    def __str__(self):
-        return self.name
-
     class Meta:
         verbose_name = 'Курс'
         verbose_name_plural = 'Курсы'
 
-
-class Homework(models.Model):
-    '''Домашние задания'''
-    name = models.CharField("Домашнее задание", max_length=150)
-    link = models.URLField(null=True, blank=True)
-    descrition = models.TextField("Описание", null=True, blank=True)
-    created = models.DateTimeField(
-        "Дата создания", default=django.utils.timezone.now)
-    deadline = models.DateTimeField("Дата дедлайна")
-    onEveryLesson = models.BooleanField("Длительное", default=False)
-    course = models.ForeignKey(
-        Course, verbose_name="Курс", on_delete=models.SET_NULL, null=True)
-    draft = models.BooleanField("Черновик", default=False)
+    name = models.CharField(verbose_name="Курс", max_length=150)
+    level = models.ForeignKey(
+        verbose_name="Уровень",
+        to=Level,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True
+    )
+    price = models.PositiveIntegerField(
+        verbose_name="Цена",
+        default=0,
+        help_text="указывать цену в рублях"
+    )
+    language = models.ForeignKey(
+        verbose_name="Язык",
+        to=Language,
+        on_delete=models.PROTECT
+    )
+    teacher = models.ForeignKey(
+        verbose_name="Учитель",
+        to=Teacher,
+        on_delete=models.PROTECT
+    )
+    student = models.ManyToManyField(verbose_name="Студент", to=Student)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
+
+class Homework(models.Model):
     class Meta:
         verbose_name = 'Домашнее задание'
         verbose_name_plural = 'Домашние задания'
 
-
-class TimeTable(models.Model):
-    '''Расписание'''
+    name = models.CharField(verbose_name="Домашнее задание", max_length=150)
+    link = models.URLField(null=True, blank=True)
+    descrition = models.TextField(verbose_name="Описание", null=True, blank=True)
+    created = models.DateTimeField(verbose_name="Дата создания", default=django.utils.timezone.now)
+    deadline = models.DateTimeField(verbose_name="Дата дедлайна")
+    onEveryLesson = models.BooleanField(verbose_name="Длительное", default=False)
     course = models.ForeignKey(
-        Course, verbose_name="Курс", on_delete=models.CASCADE)
-    starts = models.CharField("Дата и время первого занятия", max_length=350)
-    end = models.CharField("Дата окончания занятия", max_length=350)
-    period = models.CharField("Промежуток между занятиями периода", max_length=350)
+        verbose_name="Курс",
+        to=Course,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    draft = models.BooleanField(verbose_name="Черновик", default=False)
 
     def __str__(self):
-        return str(self.course)
+        return str(self.name)
 
+class TimeTable(models.Model):
     class Meta:
         verbose_name = 'Расписание'
         verbose_name_plural = 'Расписания'
+
+    course = models.ForeignKey(verbose_name="Курс", to=Course, on_delete=models.CASCADE)
+    starts = models.CharField(verbose_name="Дата и время первого занятия", max_length=350)
+    end = models.CharField(verbose_name="Дата окончания занятия", max_length=350)
+    period = models.CharField(verbose_name="Промежуток между занятиями периода", max_length=350)
+
+    def __str__(self):
+        return str(self.course)

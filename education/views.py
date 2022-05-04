@@ -23,16 +23,15 @@ class GetCourseView(APIView):
             skip = params.get('skip', None)
             
             if userprofile.role == "STUDENT":
-                 courses = Course.objects.filter(student__user=user)
+                courses = Course.objects.filter(student__user=user)
             else:
-            
               courses = Course.objects.filter(teacher__user=user) 
               
             if skip: 
-              courses = courses[int(skip):]
+                courses = courses[int(skip):]
             
             if limit:
-              courses = courses[:int(limit)]
+                courses = courses[:int(limit)]
             
             courses = CourseSerializer(courses, many=True)
 
@@ -55,9 +54,7 @@ class GetCourseView(APIView):
               'level': request.data['level'],
               'price': request.data['price'], 
               'teacher': teacher.id
-            }
-             
-             
+            }  
               
             course = AddCourseSerializer(data = data)
             if course.is_valid():
@@ -75,11 +72,10 @@ class UpdateDeleteCorseView(APIView):
         '''Редактирование групп учителя''' 
     
         try:
-              
               courses = Course.objects.get(pk=courseId)
               course = UpdateCourseSerializer(instance=courses, data=request.data)
               if course.is_valid():
-                course.save()
+                  course.save()
               return Response(course.data, status=status.HTTP_200_OK) 
 
         except Exception as error:
@@ -88,8 +84,7 @@ class UpdateDeleteCorseView(APIView):
     def delete(self, request, courseId=None):
         '''Удаление групп учителя'''
         
-        try:
-                
+        try:     
               course = Course.objects.get(pk=courseId)
               course.delete()
               return Response(status=status.HTTP_200_OK)

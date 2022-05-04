@@ -193,7 +193,3 @@ SIMPLE_JWT = {
     'AUTH_COOKIE_SAMESITE': 'Lax',  # Whether to set the flag restricting cookie leaks on cross-site requests.
                                 # This can be 'Lax', 'Strict', or None to disable the flag.
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> afe61e44be0e4dd8a3588fa2ce125e6bffdacf8d

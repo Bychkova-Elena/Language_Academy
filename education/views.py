@@ -8,7 +8,7 @@ from users.models import Teacher, UserProfile
 from rest_framework import status
         
 class GetCourseView(APIView):
-    permission_classes=[permissions.IsAuthenticated, TeachersOnly] 
+    permission_classes=[permissions.IsAuthenticated] 
     
     def get(self, request, format=None):
         '''Вывод групп'''
@@ -39,9 +39,11 @@ class GetCourseView(APIView):
             return Response(courses.data, status=status.HTTP_200_OK)
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+       
     def post(self, request):
         '''Добавление группы'''
+        
+        permission_classes=[TeachersOnly] 
     
         try:
             
@@ -73,17 +75,13 @@ class UpdateDeleteCorseView(APIView):
         '''Редактирование групп учителя''' 
     
         try:
-             
-            if TeachersOnly.has_object_permission(self, request):
               
               courses = Course.objects.get(pk=courseId)
               course = UpdateCourseSerializer(instance=courses, data=request.data)
               if course.is_valid():
                 course.save()
               return Response(course.data, status=status.HTTP_200_OK) 
-            
-            else:
-              return Response({ 'error': 'Не учитель' }, status=status.HTTP_400_BAD_REQUEST)
+
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -91,16 +89,11 @@ class UpdateDeleteCorseView(APIView):
         '''Удаление групп учителя'''
         
         try:
-             
-            if TeachersOnly.has_object_permission(self, request):
                 
               course = Course.objects.get(pk=courseId)
               course.delete()
               return Response(status=status.HTTP_200_OK)
             
-            
-            else:
-              return Response({ 'error': 'Не учитель' }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

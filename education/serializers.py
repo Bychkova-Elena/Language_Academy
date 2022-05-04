@@ -1,14 +1,10 @@
-from rest_framework import serializers
+from rest_framework import fields, serializers
 
 from .models import Course, Homework, TimeTable
 
-<<<<<<< HEAD
-=======
 class CourseSerializer(serializers.ModelSerializer):
     # группы #
->>>>>>> Group: updating and deleting teachers groups
 
-class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ('id', 'name', 'level',  'language', 'price', 'student')
@@ -28,11 +24,15 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
         exclude = ("teacher", "id")
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
+    # расписание по группе #
+
     class Meta:
         model = TimeTable
         exclude = ("course", )
-
+        
 class HomeworkByCourseSerializer(serializers.ModelSerializer):
+    # домашнее задание группы #
+
     class Meta:
         model = Homework
         exclude = ("course", )

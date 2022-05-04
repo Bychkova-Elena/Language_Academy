@@ -1,9 +1,4 @@
-from django.shortcuts import get_object_or_404
-from requests import Response
-from rest_framework import status
 from rest_framework import permissions
-
-from language_academy.users.models import Teacher
 from .permissions import TeachersOnly
 from .models import Course, Homework, TimeTable
 from .serializers import TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer, AddCourseSerializer, UpdateCourseSerializer
@@ -61,6 +56,8 @@ class GetCourseView(APIView):
               'price': request.data['price'], 
               'teacher': teacher.id
             }
+             
+             
               
             course = AddCourseSerializer(data = data)
             if course.is_valid():
@@ -100,29 +97,31 @@ class UpdateDeleteCorseView(APIView):
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+
 class GetTimeTableView(APIView):
-    @staticmethod
-    def get(pk):
+  
+    def get(self, request, pk):
+        '''Вывод расписания группы'''
+        
         try:
-            timetable = TimeTable.objects.filter(course=pk)
-            serializer = TimeTableByCourseSerializer(timetable, many=True)
 
-            return Response({ 'timetable': serializer.data})
-
+          timetable = TimeTable.objects.filter(course=pk)
+          serializer = TimeTableByCourseSerializer(timetable, many=True)
+          return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as error:
-            return Response(
-                data={'error': str(error)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-            
+            return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+      
 class GetHomeworkView(APIView):
-    @staticmethod
-    def get(pk):
+  
+    def get(self, request, pk):
+        '''Вывод домашних заданий группы'''
+        
         try:
-            homework = Homework.objects.filter(course=pk)
-            serializer = HomeworkByCourseSerializer(homework, many=True)
-            
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+          homework = Homework.objects.filter(course=pk)
+          serializer = HomeworkByCourseSerializer(homework, many=True)
+          return Response(serializer.data, status=status.HTTP_200_OK)
     
         except Exception as error:
             return Response(data={ 'error': str(error) }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

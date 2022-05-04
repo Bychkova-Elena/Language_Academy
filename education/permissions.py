@@ -5,8 +5,6 @@ class TeachersOnly(permissions.BasePermission):
     
     def has_permission(self, request, view):
         if request.user.is_authenticated:
-            return True
+            
+            return Teacher.objects.filter(user = request.user).exists()
     
-    def has_object_permission(self, request):
-        
-        return Teacher.objects.filter(user = request.user).exists()

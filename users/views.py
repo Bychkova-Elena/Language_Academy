@@ -1,12 +1,12 @@
 from rest_framework.generics import (ListCreateAPIView,RetrieveUpdateDestroyAPIView,)
-from .models import UserProfile
 from rest_framework import permissions
+from .models import UserProfile
 from .permissions import IsOwnerProfileOrReadOnly
-from .serializers import userProfileSerializer
+from .serializers import UserProfileSerializer
 
 class UserProfileListCreateView(ListCreateAPIView):
     queryset=UserProfile.objects.all()
-    serializer_class=userProfileSerializer
+    serializer_class=UserProfileSerializer
     permission_classes=[permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -14,7 +14,7 @@ class UserProfileListCreateView(ListCreateAPIView):
         serializer.save(user=user)
 
 
-class userProfileDetailView(RetrieveUpdateDestroyAPIView):
+class UserProfileDetailView(RetrieveUpdateDestroyAPIView):
     queryset=UserProfile.objects.all()
-    serializer_class=userProfileSerializer
+    serializer_class=UserProfileSerializer
     permission_classes=[IsOwnerProfileOrReadOnly,permissions.IsAuthenticated]

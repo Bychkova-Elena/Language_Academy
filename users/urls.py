@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import UserProfileDetailView, UserProfileListCreateView
+from .views import UserProfileListCreateView, UserProfileDetailView
 
 urlpatterns = [
     # gets all user profiles and create a new profile

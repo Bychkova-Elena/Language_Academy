@@ -34,14 +34,6 @@ repos:
         args: [./languages/]
         exclude: (manage.py|migrations|__pycache__)
 
-      - id: linter_permissions
-        name: linter_permissions
-        entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings
-        language: system
-        types: [python]
-        args: [./permissions/]
-        exclude: (manage.py|migrations|__pycache__)
-
       - id: linter_users
         name: linter_users
         entry: pylint --rcfile ./.pylintrc --load-plugins=pylint_django --django-settings-module=language_academy.settings

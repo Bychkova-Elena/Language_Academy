@@ -11,7 +11,7 @@ class LevelView(APIView):
     permission_classes=[permissions.AllowAny]
 
     def get(self, request):
-        '''Вывод уровней'''
+        '''Вывод уровней языка'''
 
         try:
 
@@ -29,7 +29,7 @@ class LanguageTeachersView(APIView):
     permission_classes=[permissions.AllowAny]
 
     def get(self, request):
-        '''Вывод преподаваемых языков'''
+        '''Вывод преподаваемых учителем языков'''
 
         try:
 

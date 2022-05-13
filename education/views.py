@@ -41,7 +41,7 @@ class GetCourseView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request):
-        '''Добавление группы'''
+        '''Добавление группы учителем'''
 
         try:
 
@@ -68,7 +68,7 @@ class UpdateDeleteCorseView(APIView):
     permission_classes=[permissions.IsAuthenticated, TeachersOnly]
 
     def put(self, request, courseId=None):
-        '''Редактирование групп учителя'''
+        '''Редактирование групп учителем'''
 
         try:
             courses = Course.objects.get(pk=courseId)
@@ -82,7 +82,7 @@ class UpdateDeleteCorseView(APIView):
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def delete(self, request, courseId=None):
-        '''Удаление групп учителя'''
+        '''Удаление групп учителем'''
 
         try:
             course = Course.objects.get(pk=courseId)
@@ -122,3 +122,4 @@ class GetHomeworkView(APIView):
         except Exception as error:
             return Response(data={ 'error': str(error) },
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            

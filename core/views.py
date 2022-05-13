@@ -84,6 +84,7 @@ class LoginView(APIView):
 
     @staticmethod
     def post(request):
+        '''Авторизация'''
         try:
             response = Response(status=status.HTTP_200_OK)
 
@@ -129,6 +130,7 @@ class LogoutView(APIView):
 
     @staticmethod
     def post(request):
+        '''Выход из профиля'''
         try:
             response = Response(status=status.HTTP_200_OK)
 
@@ -163,6 +165,7 @@ class TokenRefreshView(APIView):
 
     @staticmethod
     def post(request):
+        '''Рефреш токена'''
         try:
             response = Response(status=status.HTTP_201_CREATED)
 
@@ -195,6 +198,7 @@ class TokenRefreshView(APIView):
 class DeleteAccountView(APIView):
     @staticmethod
     def delete(request):
+        '''Удаление аккаунта'''
         try:
             user = request.user
 
@@ -209,6 +213,7 @@ class DeleteAccountView(APIView):
 class MeView(APIView):
     @staticmethod
     def get(request):
+        '''Получение авторизованного пользователя'''
         try:
             user = request.user
 
@@ -249,6 +254,7 @@ class GetUsersView(APIView):
 
     @staticmethod
     def get(format=None):
+        '''Вывод всех пользователей'''
         try:
             users = User.objects.all()
 

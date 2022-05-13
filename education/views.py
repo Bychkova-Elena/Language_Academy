@@ -93,7 +93,6 @@ class CoursesView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
-
 class CourseView(APIView):
     @staticmethod
     def put(request, courseId=None):
@@ -180,6 +179,7 @@ class GetHomeworkView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as error:
+            
             return Response(
                 data={'error': str(error)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

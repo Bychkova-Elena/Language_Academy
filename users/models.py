@@ -7,9 +7,9 @@ class UserRole(models.TextChoices):
     STUDENT = 'STUDENT'
     TEACHER = 'TEACHER'
 
+
 class UserProfile(models.Model):
     class Meta:
-        app_label = 'auth'
         verbose_name = 'Профиль пользователя'
         verbose_name_plural = 'Профиль пользователей'
         ordering = ('user', )
@@ -35,14 +35,13 @@ class UserProfile(models.Model):
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
+    user = models.OneToOneField(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     language = models.ManyToManyField(Language, verbose_name="Язык", blank=True)
 
     def __str__(self):
         return str(self.user)
 
     class Meta:
-        app_label = 'auth'
         verbose_name = 'Учитель'
         verbose_name_plural = 'Учителя'
         ordering = ('user', 'language__name')
@@ -50,12 +49,11 @@ class Teacher(models.Model):
 
 class Student(models.Model):
     class Meta:
-        app_label = 'auth'
         verbose_name = 'Ученик'
         verbose_name_plural = 'Ученики'
         ordering = ('user', )
 
-    user = models.OneToOneField(User,verbose_name="Пользователь", on_delete=models.CASCADE)
+    user = models.OneToOneField(User, verbose_name="Пользователь", on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.user)

@@ -20,7 +20,9 @@ class Course(models.Model):
     price = models.PositiveIntegerField(
         verbose_name="Цена",
         default=0,
-        help_text="указывать цену в рублях"
+        help_text="указывать цену в рублях",
+        null=True,
+        blank=True
     )
     language = models.ForeignKey(
         verbose_name="Язык",
@@ -32,7 +34,11 @@ class Course(models.Model):
         to=Teacher,
         on_delete=models.PROTECT
     )
-    student = models.ManyToManyField(verbose_name="Студент", to=Student)
+    students = models.ManyToManyField(
+        verbose_name="Студенты",
+        to=Student,
+        blank=True
+    )
 
     def __str__(self):
         return str(self.name)

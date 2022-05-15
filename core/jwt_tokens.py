@@ -29,12 +29,12 @@ class JWTTokens:
     @staticmethod
     def AddRefreshTokenToCookie(response, refreshToken) -> None:
         response.set_cookie(
-            key = JWTTokens.REFRESH_TOKEN_KEY,
-            value = refreshToken,
-            expires = settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
-            secure = settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-            httponly = settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-            samesite = settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
+            key=JWTTokens.REFRESH_TOKEN_KEY,
+            value=refreshToken,
+            expires=settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'],
+            secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+            httponly=settings.SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+            samesite=settings.SIMPLE_JWT['AUTH_COOKIE_SAMESITE']
         )
 
     @staticmethod

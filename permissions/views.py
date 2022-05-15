@@ -1,9 +1,10 @@
 
-from permissions.models import Permission
-from permissions.serializers import PermissionSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from permissions.models import Permission
+from permissions.serializers import PermissionSerializer
 
 
 class PermissionsView(APIView):
@@ -11,12 +12,6 @@ class PermissionsView(APIView):
     def get(request):
         try:
             user = request.user
-
-            if not user:
-                Response(
-                    data={'error': 'Невалидный пользователь'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
 
             permissions = Permission.objects.filter(user=user)
             serializedPermissions = PermissionSerializer(data=permissions, many=True)
@@ -28,7 +23,7 @@ class PermissionsView(APIView):
                 )
 
             return Response(
-                data=map(lambda p: p['key'], serializedPermissions.data),
+                data=map(lambda permission: permission['key'], serializedPermissions.data),
                 status=status.HTTP_200_OK
             )
 

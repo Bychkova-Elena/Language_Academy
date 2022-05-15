@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from rest_framework import status
+from rest_framework.response import Response
 from education.models import Course
 from users.models import User, UserProfile, UserRole
 
@@ -40,7 +42,7 @@ class PermissionTargetKey(models.TextChoices):
                 return list(
                     map(
                         lambda course: course.id,
-                        Course.objects.filter(student__user=user)
+                        Course.objects.filter(students__user=user)
                     )
                 )
 
@@ -196,6 +198,10 @@ class Permission(models.Model):
             )
 
     @staticmethod
+    def GetNoPermissionResponse():
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @staticmethod
     def GetDefaultPermissions(role):
         defaultRoles = []
         defaultRoles.extend(Permission.DEFAULT_USER_PERMISSIONS)
@@ -294,7 +300,9 @@ class Permission(models.Model):
                 availableCoursesIds.append(permissionTargetCourseId)
 
             if permissionTargetCourseIdKey:
-                availableCoursesIds.extend(PermissionTargetKey.GetTargetsIds(user=user, key=permissionTargetCourseIdKey))
+                availableCoursesIds.extend(
+                    PermissionTargetKey.GetTargetsIds(user=user, key=permissionTargetCourseIdKey)
+                )
 
         if targetCourseId in availableCoursesIds:
             return True

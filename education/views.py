@@ -1,31 +1,40 @@
-from rest_framework import permissions, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users.models import Teacher, UserProfile
-from .permissions import TeachersOnly
+from users.models import Teacher, UserProfile, UserRole
+
+from permissions.models import Permission, PermissionTargetKey
+
 from .models import Course, Homework, TimeTable
-from .serializers import (TimeTableByCourseSerializer, HomeworkByCourseSerializer, CourseSerializer,
-                AddCourseSerializer, UpdateCourseSerializer)
+from .serializers import (AddCourseSerializer, CourseSerializer,
+                          HomeworkByCourseSerializer,
+                          TimeTableByCourseSerializer, UpdateCourseSerializer)
 
-class GetCourseView(APIView):
-    permission_classes=[permissions.IsAuthenticated]
 
-    def get(self, request):
-        '''Вывод групп'''
-
+class CoursesView(APIView):
+    @staticmethod
+    def get(request):
         try:
-
-            user = self.request.user
+            user = request.user
             userprofile = UserProfile.objects.get(user=user)
-            params = self.request.query_params
 
-            limit = params.get('limit', None)
+            params = request.query_params
+
             skip = params.get('skip', None)
+            limit = params.get('limit', None)
 
-            if userprofile.role == "STUDENT":
-                courses = Course.objects.filter(student__user=user)
+            if userprofile.role == UserRole.STUDENT:
+                accessableCoursesIds = PermissionTargetKey.GetTargetsIds(
+                    user=user,
+                    key=PermissionTargetKey.STUDY_COURSES_IDS
+                )
             else:
-                courses = Course.objects.filter(teacher__user=user)
+                accessableCoursesIds = PermissionTargetKey.GetTargetsIds(
+                    user=user,
+                    key=PermissionTargetKey.TEACH_COURSES_IDS
+                )
+
+            courses = Course.objects.filter(pk__in=accessableCoursesIds)
 
             if skip:
                 courses = courses[int(skip):]
@@ -35,90 +44,143 @@ class GetCourseView(APIView):
 
             courses = CourseSerializer(courses, many=True)
 
-            return Response(courses.data, status=status.HTTP_200_OK)
+            return Response(
+                data=courses.data,
+                status=status.HTTP_200_OK
+            )
+
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-    def post(self, request):
-        '''Добавление группы'''
-
+    @staticmethod
+    def post(request):
         try:
+            user = request.user
 
-            user = self.request.user
+            if not Permission.CanCreateCourse(user=user):
+                return Permission.GetNoPermissionResponse()
+
             teacher = Teacher.objects.get(user=user)
+
             data = {
-            'name': request.data['name'],
-            'language': request.data['language'],
-            'level': request.data['level'],
-            'price': request.data['price'],
-            'teacher': teacher.id
+                'name': request.data['name'],
+                'level': request.data['levelId'],
+                'language': request.data['languageId'],
+                'teacher': teacher.id
             }
 
-            course = AddCourseSerializer(data = data)
-            if course.is_valid():
-                course.save()
-            return Response(course.data, status=status.HTTP_201_CREATED)
+            course = AddCourseSerializer(data=data)
+
+            if not course.is_valid():
+                return Response(
+                    data=course.errors,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            course.save()
+
+            return Response(
+                data=course.data,
+                status=status.HTTP_201_CREATED
+            )
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-class UpdateDeleteCorseView(APIView):
-    permission_classes=[permissions.IsAuthenticated, TeachersOnly]
 
-    def put(self, request, courseId=None):
-        '''Редактирование групп учителя'''
-
+class CourseView(APIView):
+    @staticmethod
+    def put(request, courseId=None):
         try:
-            courses = Course.objects.get(pk=courseId)
-            course = UpdateCourseSerializer(instance=courses, data=request.data)
-            if course.is_valid():
-                course.save()
-            return Response(course.data, status=status.HTTP_200_OK)
+            user = request.user
+
+            if (
+                not Permission.CanUpdateSpecificCourses(user=user, targetCourseId=courseId) or
+                not Permission.CanUpdateSpecificCoursesMembers(user=user, targetCourseId=courseId)
+            ):
+                return Permission.GetNoPermissionResponse()
+
+            course = Course.objects.get(pk=courseId)
+
+            updateData = {
+                'name': request.data['name'],
+                'level': request.data['levelId'],
+                'language': request.data['languageId'],
+                'students': request.data['students'],
+                'teacher': course.teacher.id
+            }
+
+            updatedCourse = UpdateCourseSerializer(instance=course, data=updateData)
+
+            if not updatedCourse.is_valid():
+                return Response(
+                    data=updatedCourse.errors,
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            updatedCourse.save()
+
+            return Response(data=updatedCourse.data, status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-    def delete(self, request, courseId=None):
-        '''Удаление групп учителя'''
-
+    @staticmethod
+    def delete(request, courseId=None):
         try:
+            user = request.user
+
+            if not Permission.CanDeleteSpecificCourses(user=user, targetCourseId=courseId):
+                return Permission.GetNoPermissionResponse()
+
             course = Course.objects.get(pk=courseId)
             course.delete()
+
             return Response(status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class GetTimeTableView(APIView):
-
-    def get(self, request, pk):
-        '''Вывод расписания группы'''
-
+    @staticmethod
+    def get(request, pk):
         try:
-
             timetable = TimeTable.objects.filter(course=pk)
             serializer = TimeTableByCourseSerializer(timetable, many=True)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class GetHomeworkView(APIView):
-
-    def get(self, request, pk):
-        '''Вывод домашних заданий группы'''
-
+    @staticmethod
+    def get(request, pk):
         try:
-
             homework = Homework.objects.filter(course=pk)
             serializer = HomeworkByCourseSerializer(homework, many=True)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

@@ -18,7 +18,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_filter = ("language", "level", "teacher__user")
     search_fields = ("name", "teacher__user__username")
     inlines = [TimeTableInline, HomeworkInline]
-    raw_id_fields = ["teacher", "student"]
+    raw_id_fields = ["teacher", "students"]
     save_on_top = True
     save_as = True
     fieldsets = (
@@ -29,7 +29,7 @@ class CourseAdmin(admin.ModelAdmin):
             "fields": (("language", "level"),)
         }),
         (None, {
-            "fields": ("student", )
+            "fields": ("students", )
         })
     )
 

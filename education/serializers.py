@@ -23,6 +23,27 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
         model = Course
         exclude = ("teacher", "id")
 
+class HomeworkSerializer(serializers.ModelSerializer):
+    # домашнее задание группы #
+
+    class Meta:
+        model = Homework
+        exclude = ("course", )
+
+class AddHomeworkSerializer(serializers.ModelSerializer):
+    # добавление дз группы #
+
+    class Meta:
+        model = Homework
+        exclude = ("created", "id" )
+
+class UpdateHomeworkSerializer(serializers.ModelSerializer):
+    # редактирование дз #
+
+    class Meta:
+        model = Homework
+        exclude = ("created", "id", "course" )
+
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #
 

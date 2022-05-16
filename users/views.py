@@ -3,7 +3,10 @@ from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from education.models import Course
+<<<<<<< HEAD
 from permissions.models import Permission
+=======
+>>>>>>> Homework: get students has done
 from .models import UserProfile
 from .permissions import IsOwnerProfileOrReadOnly
 from .serializers import UserProfileSerializer, StudentsSerializer
@@ -18,15 +21,19 @@ class UserProfileListCreateView(ListCreateAPIView):
         user=self.request.user
         serializer.save(user=user)
 
-
 class UserProfileDetailView(RetrieveUpdateDestroyAPIView):
     queryset=UserProfile.objects.all()
     serializer_class=UserProfileSerializer
+<<<<<<< HEAD
     permission_classes=[IsOwnerProfileOrReadOnly, permissions.IsAuthenticated]
+=======
+    permission_classes=[IsOwnerProfileOrReadOnly,permissions.IsAuthenticated]
+>>>>>>> Homework: get students has done
 
 class StudentsView(APIView):
     permission_classes=[permissions.IsAuthenticated]
 
+<<<<<<< HEAD
     @staticmethod
     def get(request, courseId=None):
         '''Вывод учеников курса'''
@@ -38,6 +45,12 @@ class StudentsView(APIView):
                                                                         targetCourseId=courseId):
                 return Permission.GetNoPermissionResponse()
 
+=======
+    def get(self, request, courseId=None):
+        '''Вывод учеников курса'''
+
+        try:
+>>>>>>> Homework: get students has done
             course = Course.objects.get(pk=courseId)
             students = StudentsSerializer(course)
 

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from education.models import Course
 from .models import UserProfile
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -6,4 +7,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
+
+class StudentsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Course
+        fields = ('student', )
         

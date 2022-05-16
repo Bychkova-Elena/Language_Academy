@@ -30,6 +30,7 @@ class UserProfile(models.Model):
         choices=ROLE,
         default=""
     )
+    avatar = models.ImageField(verbose_name='Аватар', null=True, blank=True)
     firstName = models.CharField(verbose_name="Имя", max_length=255, default='')
     lastName = models.CharField(verbose_name="Фамилия", max_length=255, default='')
     phone = models.CharField(verbose_name="Телефон", max_length=20, default='')

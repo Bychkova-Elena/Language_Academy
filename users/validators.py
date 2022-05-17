@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from .models import UserProfile
+from .models import UserRole
 
 
 class UserValidators:
@@ -14,7 +14,7 @@ class UserValidators:
 
     @staticmethod
     def IsValidUserRole(role) -> bool:
-        return role in [UserProfile.STUDENT, UserProfile.TEACHER]
+        return role in [UserRole.STUDENT, UserRole.TEACHER]
 
     @staticmethod
     def IsValidUsername(username) -> bool:

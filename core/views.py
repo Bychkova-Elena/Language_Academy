@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from users.models import Student, Teacher, UserProfile
+from users.models import Student, Teacher, UserProfile, UserRole
 from users.validators import UserValidators
 
 from core.validators import RequestValidator
@@ -17,7 +17,7 @@ class SignupView(APIView):
     permission_classes = (permissions.AllowAny, )
 
     @staticmethod
-    def post( request):
+    def post(request):
         try:
             data = request.data
 
@@ -60,14 +60,11 @@ class SignupView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            user = User.objects.create_user(
-                username=username, password=password)
+            user = User.objects.create_user(username=username, password=password)
 
-            userProfile = UserProfile.objects.get(user=user)
-            userProfile.role = role
-            userProfile.save()
+            userProfile = UserProfile.objects.create(user=user, role=role)
 
-            if role == "STUDENT":
+            if userProfile.role == UserRole.STUDENT:
                 Student.objects.create(user=user)
             else:
                 Teacher.objects.create(user=user)
@@ -75,10 +72,12 @@ class SignupView(APIView):
             return Response(status=status.HTTP_201_CREATED)
 
         except Exception as error:
+            print(error)
             return Response(
                 data={'error': str(error)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -189,7 +188,7 @@ class TokenRefreshView(APIView):
         except Exception as error:
             return Response(
                 data={'error': str(error)},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
@@ -204,7 +203,7 @@ class DeleteAccountView(APIView):
             return Response(status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MeView(APIView):
@@ -241,7 +240,7 @@ class MeView(APIView):
         except Exception as error:
             return Response(
                 data={'error': str(error)},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
@@ -258,4 +257,7 @@ class GetUsersView(APIView):
             return Response(data=users.data, status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

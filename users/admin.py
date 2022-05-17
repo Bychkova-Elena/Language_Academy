@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Student, Teacher, UserProfile
+from .models import Student, Teacher, UserProfile, UserRole
 
 
 @admin.register(Teacher)
@@ -26,7 +26,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     actions = ["ChangeOnStudent","ChangeOnTeacher"]
 
     def ChangeOnStudent(self, request, queryset):
-        rowUpdate = queryset.update(role='STUDENT')
+        rowUpdate = queryset.update(role=UserRole.STUDENT)
 
         if rowUpdate == 1:
             messageBit = "The status of 1 entry has been changed"
@@ -36,7 +36,7 @@ class UserProfileAdmin(admin.ModelAdmin):
         self.message_user(request, f"{messageBit}")
 
     def ChangeOnTeacher(self, request, queryset):
-        rowUpdate = queryset.update(role='TEACHER')
+        rowUpdate = queryset.update(role=UserRole.TEACHER)
 
         if rowUpdate == 1:
             messageBit = "The status of 1 entry has been changed"

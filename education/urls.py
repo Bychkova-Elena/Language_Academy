@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import GetCourseView, GetHomeworkView, GetTimeTableView, UpdateDeleteCorseView
+
+from .views import CoursesView, CourseView, GetHomeworkView, GetTimeTableView
 
 urlpatterns = [
-    path('courses', GetCourseView.as_view()),
-    path('courses/<int:courseId>', UpdateDeleteCorseView.as_view()),
+    path('courses', CoursesView.as_view()),
+    path('courses/<int:courseId>', CourseView.as_view()),
     path('<int:pk>/gettimetable', GetTimeTableView.as_view()),
     path('<int:pk>/gethomework', GetHomeworkView.as_view())
 ]

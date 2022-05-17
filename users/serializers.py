@@ -8,12 +8,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = '__all__'
 
-class UpdateProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = UserProfile
-        exclude = ("user", "id", "role")
-
 class StudentsSerializer(serializers.ModelSerializer):
 
     class Meta:

@@ -48,11 +48,3 @@ class TimeTableByCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeTable
         exclude = ("course", )
-
-
-class HomeworkByCourseSerializer(serializers.ModelSerializer):
-    # домашнее задание группы #
-
-    class Meta:
-        model = Homework
-        exclude = ("course", )

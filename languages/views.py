@@ -2,7 +2,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from users.models import Teacher
+from users.models import Teachers
 from .models import Level
 from .serializers import  LevelSerializer, LanguageTeachersSerializer
 
@@ -35,7 +35,7 @@ class LanguageTeachersView(APIView):
 
             user = self.request.user
 
-            language = Teacher.objects.filter(user=user)
+            language = Teachers.objects.filter(user=user)
 
             language = LanguageTeachersSerializer(language, many=True)
 

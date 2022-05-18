@@ -1,7 +1,7 @@
 import django.utils.timezone
 from django.db import models
 from languages.models import Language, Level
-from users.models import Student, Teacher
+from users.models import Students, Teachers
 
 
 class Course(models.Model):
@@ -31,12 +31,12 @@ class Course(models.Model):
     )
     teacher = models.ForeignKey(
         verbose_name="Учитель",
-        to=Teacher,
+        to=Teachers,
         on_delete=models.PROTECT
     )
     students = models.ManyToManyField(
         verbose_name="Студенты",
-        to=Student,
+        to=Students,
         blank=True
     )
 

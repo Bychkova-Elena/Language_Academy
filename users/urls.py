@@ -1,7 +1,6 @@
 from django.urls import path
 from .views import (UserProfileListCreateView, UserProfileDetailView,
                     StudentsView)
-
 urlpatterns = [
     # gets all user profiles and create a new profile
     path("all-profiles", UserProfileListCreateView.as_view(), name="all-profiles"),

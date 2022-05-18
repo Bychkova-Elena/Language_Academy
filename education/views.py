@@ -2,7 +2,6 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import Teachers, UserProfile, UserRole
-
 from permissions.models import Permission, PermissionTargetKey
 
 from .models import Course, Homework, TimeTable
@@ -246,6 +245,7 @@ class GetTimeTableView(APIView):
         try:
 
             timetable = TimeTable.objects.filter(course=courseId)
+
             serializer = TimeTableByCourseSerializer(timetable, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as error:

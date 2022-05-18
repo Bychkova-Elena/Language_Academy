@@ -20,7 +20,6 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
 
-
 class HomeworkSerializer(serializers.ModelSerializer):
     # домашнее задание группы #
 

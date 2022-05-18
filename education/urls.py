@@ -8,4 +8,5 @@ urlpatterns = [
     path('courses/<int:courseId>/homeworks', HomeworksView.as_view()),
     path('courses/<int:courseId>/homeworks/<int:homeworkId>', HomeworkView.as_view()),
     path('courses/<int:courseId>/timetable', GetTimeTableView.as_view()),
+
 ]

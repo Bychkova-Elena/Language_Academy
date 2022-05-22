@@ -35,7 +35,7 @@ class UserProfile(models.Model):
         return str(self.firstName)
 
 
-class Teachers(models.Model):
+class Teacher(models.Model):
     user = models.OneToOneField(User, verbose_name="Пользователь", on_delete=models.CASCADE)
     language = models.ManyToManyField(Language, verbose_name="Язык", blank=True)
 
@@ -48,7 +48,7 @@ class Teachers(models.Model):
         ordering = ('user', 'language__name')
 
 
-class Students(models.Model):
+class Student(models.Model):
     class Meta:
         verbose_name = 'Ученик'
         verbose_name_plural = 'Ученики'

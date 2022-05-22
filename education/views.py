@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users.models import Teachers, UserProfile, UserRole
+from users.models import Teacher, UserProfile, UserRole
 from permissions.models import Permission, PermissionTargetKey
 
 from .models import Course, Homework, TimeTable
@@ -62,7 +62,7 @@ class CoursesView(APIView):
             if not Permission.CanCreateCourse(user=user):
                 return Permission.GetNoPermissionResponse()
 
-            teacher = Teachers.objects.get(user=user)
+            teacher = Teacher.objects.get(user=user)
 
             data = {
                 'name': request.data['name'],

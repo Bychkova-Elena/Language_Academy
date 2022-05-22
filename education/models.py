@@ -1,7 +1,7 @@
 import django.utils.timezone
 from django.db import models
 from languages.models import Language, Level
-from users.models import Students, Teachers
+from users.models import Student, Teacher
 
 
 class Course(models.Model):
@@ -31,12 +31,12 @@ class Course(models.Model):
     )
     teacher = models.ForeignKey(
         verbose_name="Учитель",
-        to=Teachers,
+        to=Teacher,
         on_delete=models.PROTECT
     )
     students = models.ManyToManyField(
         verbose_name="Студенты",
-        to=Students,
+        to=Student,
         blank=True
     )
 
@@ -49,7 +49,7 @@ class Homework(models.Model):
         verbose_name = 'Домашнее задание'
         verbose_name_plural = 'Домашние задания'
 
-    name = models.CharField(verbose_name="Домашнее задание", max_length=150)
+    name = models.CharField(verbose_name="Название", max_length=150)
     link = models.URLField(null=True, blank=True)
     description = models.TextField(verbose_name="Описание", null=True, blank=True)
     created = models.DateTimeField(verbose_name="Дата создания", default=django.utils.timezone.now)

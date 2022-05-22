@@ -1,16 +1,16 @@
 from django.contrib import admin
 
-from .models import Students, Teachers, UserProfile, UserRole
+from .models import Student, Teacher, UserProfile, UserRole
 
 
-@admin.register(Teachers)
+@admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ("user",)
     list_filter = ("language", )
     search_fields = ("user__username", )
     raw_id_fields = ["user", ]
 
-@admin.register(Students)
+@admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ("user", )
     search_fields = ("user__username", )

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import Teachers
+from users.models import Teacher
 from .models import Level
 
 class LevelSerializer(serializers.ModelSerializer):
@@ -11,6 +11,6 @@ class LevelSerializer(serializers.ModelSerializer):
 class LanguageTeachersSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Teachers
+        model = Teacher
         fields = ('language', )
         

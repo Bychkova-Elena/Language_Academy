@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.exceptions import TokenError
-from users.models import Students, Teachers, UserProfile, UserRole
+from users.models import Student, Teacher, UserProfile, UserRole
 from users.validators import UserValidators
 
 from core.validators import RequestValidator
@@ -65,9 +65,9 @@ class SignupView(APIView):
             userProfile = UserProfile.objects.create(user=user, role=role)
 
             if userProfile.role == UserRole.STUDENT:
-                Students.objects.create(user=user)
+                Student.objects.create(user=user)
             else:
-                Teachers.objects.create(user=user)
+                Teacher.objects.create(user=user)
 
             return Response(status=status.HTTP_201_CREATED)
 

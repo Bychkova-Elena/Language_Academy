@@ -20,6 +20,12 @@ class UpdateCourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = '__all__'
 
+class AllHomeworksSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Homework
+        fields = '__all__'
+
 class HomeworkSerializer(serializers.ModelSerializer):
     # домашнее задание группы #
 

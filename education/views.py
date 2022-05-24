@@ -1,13 +1,13 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users.models import Teacher, UserProfile, UserRole
+from users.models import Teacher, Student, UserProfile, UserRole
 from permissions.models import Permission, PermissionTargetKey
 
 from .models import Course, Homework, TimeTable
 from .serializers import (TimeTableByCourseSerializer, CourseSerializer,
                 AddCourseSerializer, UpdateCourseSerializer, HomeworkSerializer,
-                AddHomeworkSerializer, UpdateHomeworkSerializer)
+                AddHomeworkSerializer, UpdateHomeworkSerializer, AllHomeworksSerializer)
 
 
 class CoursesView(APIView):
@@ -234,6 +234,30 @@ class HomeworkView(APIView):
             homework.delete()
             return Response(status=status.HTTP_200_OK)
 
+        except Exception as error:
+            return Response(data={ 'error': str(error) },
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AllHomeworksView(APIView):
+    @staticmethod
+    def get(request):
+        '''Все дз ученика'''
+        try:
+            user = request.user
+
+            if not Permission.CanReadAssignedHomeworkSpecificUsers(
+                user=user, targetUserId=user.id):
+                return Permission.GetNoPermissionResponse()
+
+            student = Student.objects.get(user=user)
+
+            courses = Course.objects.filter(students=student.id)
+
+            homeworks = Homework.objects.filter(course__in=courses)
+
+            homeworks = AllHomeworksSerializer(homeworks, many=True)
+
+            return Response(homeworks.data, status=status.HTTP_200_OK)
         except Exception as error:
             return Response(data={ 'error': str(error) },
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

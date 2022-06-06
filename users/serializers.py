@@ -13,4 +13,3 @@ class StudentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ('students', )
-        

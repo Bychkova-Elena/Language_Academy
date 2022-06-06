@@ -14,9 +14,9 @@ class UserProfileListCreateView(ListCreateAPIView):
     permission_classes=[permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+        '''Создание пользователя'''
         user=self.request.user
         serializer.save(user=user)
-
 
 class UserProfileDetailView(RetrieveUpdateDestroyAPIView):
     queryset=UserProfile.objects.all()

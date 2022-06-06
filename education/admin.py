@@ -48,7 +48,7 @@ class HomeworkAdmin(admin.ModelAdmin):
             "fields": (("name", "link"),)
         }),
         (None, {
-            "fields": ("descrition", "onEveryLesson", "course")
+            "fields": ("description", "onEveryLesson", "course", "draft")
         }),
         (None, {
             "fields": (("created", "deadline"),)

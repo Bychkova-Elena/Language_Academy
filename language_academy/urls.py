@@ -8,6 +8,9 @@ from rest_framework.schemas import get_schema_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include("permissions.urls")),
+    path('api/v1/', include("users.urls")),
+    path('api/v1/', include("education.urls")),
+    path('api/v1/', include("languages.urls")),
     path('api/v1/', include("core.urls")),
     path('i18n/', include("django.conf.urls.i18n")),
     path('api_schema/', get_schema_view(

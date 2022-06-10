@@ -6,13 +6,13 @@ from .models import Course, Homework, TimeTable
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ('id', 'name', 'level', 'language', 'price', 'students')
+        fields = '__all__'
 
 
 class AddCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        exclude = ("students", "id")
+        fields = ("name", "language", "level", "teacher")
 
 
 class UpdateCourseSerializer(serializers.ModelSerializer):
@@ -38,14 +38,14 @@ class AddHomeworkSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Homework
-        exclude = ("created", "id" )
+        fields = ("name", "link", "description", "deadline", "onEveryLesson", "course", "draft" )
 
 class UpdateHomeworkSerializer(serializers.ModelSerializer):
     # редактирование дз #
 
     class Meta:
         model = Homework
-        exclude = ("created", "id", "course" )
+        fields = ("name", "link", "description", "deadline", "onEveryLesson", "draft" )
 
 class TimeTableByCourseSerializer(serializers.ModelSerializer):
     # расписание по группе #

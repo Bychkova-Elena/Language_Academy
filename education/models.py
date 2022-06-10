@@ -72,9 +72,10 @@ class TimeTable(models.Model):
         verbose_name_plural = 'Расписания'
 
     course = models.ForeignKey(verbose_name="Курс", to=Course, on_delete=models.CASCADE)
-    starts = models.CharField(verbose_name="Дата и время первого занятия", max_length=350)
-    end = models.CharField(verbose_name="Дата окончания занятия", max_length=350)
-    period = models.CharField(verbose_name="Промежуток между занятиями периода", max_length=350)
+    starts = models.DateTimeField(verbose_name="Дата и время первого занятия", max_length=350)
+    end = models.DateTimeField(verbose_name="Дата окончания занятия", max_length=350)
+    period = models.PositiveIntegerField(verbose_name="Промежуток между занятиями периода",
+                                         max_length=350)
 
     def __str__(self):
         return str(self.course)

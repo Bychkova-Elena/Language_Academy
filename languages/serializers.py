@@ -5,7 +5,7 @@ class LevelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Level
-        fields = ("name", )
+        fields = '__all__'
 
 class LanguageTeachersSerializer(serializers.ModelSerializer):
 

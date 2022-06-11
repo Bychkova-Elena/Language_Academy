@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from modeltranslation.admin import TabbedTranslationAdmin
 from .models import Student, Teacher, UserProfile, UserRole
 
 
@@ -17,7 +18,7 @@ class StudentAdmin(admin.ModelAdmin):
     raw_id_fields = ["user", ]
 
 @admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(TabbedTranslationAdmin):
     list_display = ("user", "role", "firstName", "lastName")
     list_filter = ("role", )
     search_fields = ("firstName", "lastName")

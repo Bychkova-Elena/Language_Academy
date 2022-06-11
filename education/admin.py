@@ -1,6 +1,8 @@
 from django.contrib import admin
 
+from modeltranslation.admin import TabbedTranslationAdmin
 from .models import Course, Homework, TimeTable
+
 
 
 class TimeTableInline(admin.StackedInline):
@@ -13,7 +15,7 @@ class HomeworkInline(admin.StackedInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(TabbedTranslationAdmin):
     list_display = ("name", "language", "level", "teacher")
     list_filter = ("language", "level", "teacher__user")
     search_fields = ("name", "teacher__user__username")
@@ -34,7 +36,7 @@ class CourseAdmin(admin.ModelAdmin):
     )
 
 @admin.register(Homework)
-class HomeworkAdmin(admin.ModelAdmin):
+class HomeworkAdmin(TabbedTranslationAdmin):
     list_display = ("name", "course", "link", "created", "deadline", "onEveryLesson", "draft")
     list_filter = ("onEveryLesson", "draft")
     list_editable = ("draft",)

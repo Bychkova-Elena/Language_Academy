@@ -74,8 +74,7 @@ class TimeTable(models.Model):
     course = models.ForeignKey(verbose_name="Курс", to=Course, on_delete=models.CASCADE)
     starts = models.DateTimeField(verbose_name="Дата и время первого занятия", max_length=350)
     end = models.DateTimeField(verbose_name="Дата окончания занятия", max_length=350)
-    period = models.PositiveIntegerField(verbose_name="Промежуток между занятиями периода",
-                                         max_length=350)
+    period = models.PositiveIntegerField(verbose_name="Промежуток между занятиями периода")
 
     def __str__(self):
         return str(self.course)

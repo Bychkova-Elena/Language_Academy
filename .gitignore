@@ -12,3 +12,6 @@ db.sqlite3
 
 # Visual Studio Code # 
 .vscode
+
+prod_settings.py
+logs/debug.log

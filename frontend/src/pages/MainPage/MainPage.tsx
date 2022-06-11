@@ -6,9 +6,9 @@ const MainPage: React.FC = () => {
   return (
 <div className='container'>
         <div className='mt-5 p-5 bg-light'>
-            <h1 className='display-4'>Welcome to Session Auth</h1>
+            <h1 className='display-4'>Welcome</h1>
             <p className='lead'>
-                This is a wonderful application with session authentication in React and Django.
+                This is a wonderful application in React and Django.
             </p>
             <hr className='my-4' />
             <p>Click the button below to log in.</p>

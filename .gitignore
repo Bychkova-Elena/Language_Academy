@@ -1,0 +1,17 @@
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/*
+db.sqlite3
+
+### Django.Python Stack ###
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class
+
+# Visual Studio Code # 
+.vscode
+
+prod_settings.py
+logs/debug.log

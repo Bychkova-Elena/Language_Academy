@@ -14,4 +14,3 @@ db.sqlite3
 .vscode
 
 prod_settings.py
-logs/debug.log

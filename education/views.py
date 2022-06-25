@@ -5,9 +5,9 @@ from users.models import Teacher, Student, UserProfile, UserRole
 from permissions.models import Permission, PermissionTargetKey
 
 from .models import Course, Homework, TimeTable
-from .serializers import (TimeTableByCourseSerializer, CourseSerializer,
-                AddCourseSerializer, UpdateCourseSerializer, HomeworkSerializer,
-                AddHomeworkSerializer, UpdateHomeworkSerializer, AllHomeworksSerializer)
+from .serializers import (CourseInfoSerializer, TimeTableByCourseSerializer,
+                          AddCourseSerializer, UpdateCourseSerializer, HomeworkSerializer,
+                          AddHomeworkSerializer, UpdateHomeworkSerializer, AllHomeworksSerializer)
 
 
 class CoursesView(APIView):
@@ -23,17 +23,19 @@ class CoursesView(APIView):
             limit = params.get('limit', None)
 
             if userprofile.role == UserRole.STUDENT:
-                accessableCoursesIds = PermissionTargetKey.GetTargetsIds(
+                accessibleCoursesIds = PermissionTargetKey.GetTargetsIds(
                     user=user,
                     key=PermissionTargetKey.STUDY_COURSES_IDS
                 )
             else:
-                accessableCoursesIds = PermissionTargetKey.GetTargetsIds(
+                accessibleCoursesIds = PermissionTargetKey.GetTargetsIds(
                     user=user,
                     key=PermissionTargetKey.TEACH_COURSES_IDS
                 )
 
-            courses = Course.objects.filter(pk__in=accessableCoursesIds)
+            courses = Course.objects.filter(pk__in=accessibleCoursesIds).select_related(
+                "level", "language"
+            )
 
             if skip:
                 courses = courses[int(skip):]
@@ -41,7 +43,7 @@ class CoursesView(APIView):
             if limit:
                 courses = courses[:int(limit)]
 
-            courses = CourseSerializer(courses, many=True)
+            courses = CourseInfoSerializer(courses, many=True)
 
             return Response(
                 data=courses.data,
@@ -170,9 +172,12 @@ class HomeworksView(APIView):
             homeworks = HomeworkSerializer(homeworks, many=True)
 
             return Response(homeworks.data, status=status.HTTP_200_OK)
+
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @staticmethod
     def post(request, courseId=None):
@@ -184,23 +189,28 @@ class HomeworksView(APIView):
                 return Permission.GetNoPermissionResponse()
 
             data = {
-            'name': request.data['name'],
-            'link': request.data['link'],
-            'description': request.data['description'],
-            'deadline': request.data['deadline'],
-            'onEveryLesson': request.data['onEveryLesson'],
-            'course': courseId,
-            'draft': request.data['draft']
+                'name': request.data['name'],
+                'link': request.data['link'],
+                'description': request.data['description'],
+                'deadline': request.data['deadline'],
+                'onEveryLesson': request.data['onEveryLesson'],
+                'course': courseId,
+                'draft': request.data['draft']
             }
 
-            homework = AddHomeworkSerializer(data = data)
+            homework = AddHomeworkSerializer(data=data)
+
             if homework.is_valid():
                 homework.save()
+
             return Response(homework.data, status=status.HTTP_201_CREATED)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class HomeworkView(APIView):
     @staticmethod
@@ -219,8 +229,10 @@ class HomeworkView(APIView):
             return Response(homework.data, status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @staticmethod
     def delete(request, courseId=None, homeworkId=None):
@@ -235,8 +247,11 @@ class HomeworkView(APIView):
             return Response(status=status.HTTP_200_OK)
 
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class AllHomeworksView(APIView):
     @staticmethod
@@ -246,21 +261,25 @@ class AllHomeworksView(APIView):
             user = request.user
 
             if not Permission.CanReadAssignedHomeworkSpecificUsers(
-                user=user, targetUserId=user.id):
+                    user=user, targetUserId=user.id):
                 return Permission.GetNoPermissionResponse()
 
             student = Student.objects.get(user=user)
 
             courses = Course.objects.filter(students=student.id)
 
-            homeworks = Homework.objects.filter(course__in=courses)
+            homeworks = Homework.objects.filter(course__in=courses).select_related('course')
 
             homeworks = AllHomeworksSerializer(homeworks, many=True)
 
             return Response(homeworks.data, status=status.HTTP_200_OK)
+
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class GetTimeTableView(APIView):
     @staticmethod
@@ -271,7 +290,11 @@ class GetTimeTableView(APIView):
             timetable = TimeTable.objects.filter(course=courseId)
 
             serializer = TimeTableByCourseSerializer(timetable, many=True)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
+
         except Exception as error:
-            return Response(data={ 'error': str(error) },
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                data={'error': str(error)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
